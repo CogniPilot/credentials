@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badge - CogniPilot Credentials</title>
+    <meta name="description" content="CogniPilot digital credential badge details.">
+    <meta property="og:type" content="website">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .badge-detail {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 48px;
+            padding: 48px 0;
+        }
+
+        @media (max-width: 768px) {
+            .badge-detail {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .badge-visual {
+            text-align: center;
+        }
+
+        .badge-image-large {
+            background: linear-gradient(135deg, var(--color-bg-darker) 0%, var(--color-bg-card) 100%);
+            border-radius: var(--radius-xl);
+            padding: 48px;
+            margin-bottom: 24px;
+            border: 1px solid var(--color-border);
+        }
+
+        .badge-image-large img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+
+        .badge-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .badge-content h1 {
+            margin-bottom: 16px;
+        }
+
+        .badge-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .badge-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            font-family: var(--font-heading);
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        .badge-type-tag {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+        }
+
+        .badge-description {
+            color: var(--color-text-secondary);
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+
+        .criteria-section {
+            background: var(--color-bg-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 32px;
+            border: 1px solid var(--color-border);
+        }
+
+        .criteria-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .criteria-section h3 svg {
+            width: 20px;
+            height: 20px;
+            color: var(--color-primary);
+        }
+
+        .criteria-section p {
+            color: var(--color-text-secondary);
+            line-height: 1.7;
+        }
+
+        .issuer-link {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--color-bg-card);
+            border-radius: var(--radius-lg);
+            transition: all 0.2s;
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .issuer-link:hover {
+            background: var(--color-bg-card-hover);
+            border-color: var(--color-primary);
+            color: var(--color-text);
+        }
+
+        .issuer-link-avatar {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .issuer-link-avatar img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .issuer-link-info {
+            flex: 1;
+        }
+
+        .issuer-link-info h4 {
+            margin-bottom: 2px;
+            color: var(--color-text);
+        }
+
+        .issuer-link-info p {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            margin: 0;
+        }
+
+        .json-preview {
+            background: var(--color-bg-darker);
+            color: var(--color-primary-light);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            font-family: monospace;
+            font-size: 0.8125rem;
+            overflow-x: auto;
+            margin-top: 32px;
+            border: 1px solid var(--color-border);
+        }
+
+        .json-preview pre {
+            margin: 0;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 0;
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            font-family: var(--font-heading);
+        }
+
+        .breadcrumb a {
+            color: var(--color-text-secondary);
+        }
+
+        .breadcrumb a:hover {
+            color: var(--color-primary);
+        }
+
+        .breadcrumb svg {
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="nav-brand">
+                <img src="/images/cognipilot-logo.png" alt="CogniPilot" class="nav-logo">
+                <span>CogniPilot Credentials</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/issuer.html" class="nav-link">Issuer</a>
+                <a href="/badges/" class="nav-link active">Badges</a>
+                <a href="/verify.html" class="nav-link">Verify</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <nav class="breadcrumb">
+            <a href="/">Home</a>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+            <a href="/badges/">Badges</a>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+            <span id="breadcrumb-name">Loading...</span>
+        </nav>
+
+        <div class="badge-detail">
+            <div class="badge-visual">
+                <div class="badge-image-large">
+                    <img id="badge-image" src="/images/default-badge.svg" alt="Badge">
+                </div>
+                <div class="badge-actions">
+                    <a id="json-link" href="#" class="btn btn-outline" target="_blank">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+                        </svg>
+                        View JSON-LD
+                    </a>
+                    <a href="/verify.html" class="btn btn-secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Verify a Credential
+                    </a>
+                </div>
+            </div>
+
+            <div class="badge-content">
+                <h1 id="badge-name">Loading...</h1>
+
+                <div class="badge-meta" id="badge-meta">
+                    <span class="badge-tag badge-type-tag" id="badge-type">Achievement</span>
+                </div>
+
+                <p class="badge-description" id="badge-description">
+                    Loading badge details...
+                </p>
+
+                <div class="criteria-section">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Earning Criteria
+                    </h3>
+                    <p id="badge-criteria">
+                        Loading criteria...
+                    </p>
+                </div>
+
+                <h3 style="margin-bottom: 16px;">Issued By</h3>
+                <a href="/issuer.html" class="issuer-link">
+                    <div class="issuer-link-avatar">
+                        <img src="/images/cognipilot-logo.png" alt="CogniPilot">
+                    </div>
+                    <div class="issuer-link-info">
+                        <h4 id="issuer-name">CogniPilot Foundation</h4>
+                        <p>Verified Issuer</p>
+                    </div>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-text-muted);">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </a>
+
+                <div class="json-preview">
+                    <pre id="json-preview">Loading...</pre>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="/images/cognipilot-logo.png" alt="CogniPilot" class="footer-logo">
+                    <span>CogniPilot Foundation</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://cognipilot.org" target="_blank">Website</a>
+                    <a href="https://github.com/cognipilot" target="_blank">GitHub</a>
+                    <a href="mailto:info@cognipilot.org">Contact</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CogniPilot Foundation. Credentials issued under OpenBadges 3.0.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Get badge ID from URL query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const badgeId = urlParams.get('id');
+
+        async function loadBadgeData() {
+            if (!badgeId) {
+                document.getElementById('badge-name').textContent = 'Badge Not Found';
+                document.getElementById('badge-description').textContent = 'No badge ID specified.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/achievements/${badgeId}.json`);
+                if (!response.ok) throw new Error('Badge not found');
+
+                const badge = await response.json();
+
+                // Update page content
+                document.title = `${badge.name} - CogniPilot Credentials`;
+                document.getElementById('badge-name').textContent = badge.name;
+                document.getElementById('breadcrumb-name').textContent = badge.name;
+                document.getElementById('badge-description').textContent = badge.description;
+
+                if (badge.achievementType) {
+                    document.getElementById('badge-type').textContent = badge.achievementType;
+                }
+
+                if (badge.criteria?.narrative) {
+                    document.getElementById('badge-criteria').textContent = badge.criteria.narrative;
+                }
+
+                if (badge.issuer?.name) {
+                    document.getElementById('issuer-name').textContent = badge.issuer.name;
+                }
+
+                // Update image
+                const imageUrl = badge.image?.id || badge.image;
+                if (imageUrl) {
+                    document.getElementById('badge-image').src = imageUrl.replace('https://credentials.cognipilot.org', '');
+                }
+
+                // Update JSON link
+                document.getElementById('json-link').href = `/achievements/${badgeId}.json`;
+
+                // Add tags
+                const metaContainer = document.getElementById('badge-meta');
+                if (badge.tag && Array.isArray(badge.tag)) {
+                    badge.tag.forEach(tag => {
+                        const tagEl = document.createElement('span');
+                        tagEl.className = 'badge-tag';
+                        tagEl.textContent = tag;
+                        metaContainer.appendChild(tagEl);
+                    });
+                }
+
+                // Display JSON
+                document.getElementById('json-preview').textContent = JSON.stringify(badge, null, 2);
+
+            } catch (e) {
+                console.error('Failed to load badge:', e);
+                document.getElementById('badge-name').textContent = 'Badge Not Found';
+                document.getElementById('badge-description').textContent = 'The requested badge could not be loaded.';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadBadgeData);
+    </script>
+</body>
+</html>

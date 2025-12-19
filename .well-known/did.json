@@ -1,0 +1,19 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    "https://w3id.org/security/multikey/v1"
+  ],
+  "id": "did:web:credentials.cognipilot.org",
+  "verificationMethod": [{
+    "id": "did:web:credentials.cognipilot.org#key-1",
+    "type": "Multikey",
+    "controller": "did:web:credentials.cognipilot.org",
+    "publicKeyMultibase": "z6Mkp7ErHCMw7ofrmXRnc17RuppRRJnAdAkdACwFUmxmeRVS"
+  }],
+  "authentication": [
+    "did:web:credentials.cognipilot.org#key-1"
+  ],
+  "assertionMethod": [
+    "did:web:credentials.cognipilot.org#key-1"
+  ]
+}

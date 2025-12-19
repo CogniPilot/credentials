@@ -1,0 +1,12 @@
+{
+  "_comment": "Template for UPDATE requests. Use to change email (moves credential to new/different wallet).",
+  "_note": "Finds credential by old_email + achievement, re-issues under new email's wallet.",
+
+  "request_type": "update",
+  "old_email": "old-email@example.com",
+  "recipient_name": "First Last",
+  "recipient_email": "new-email@example.com",
+  "achievement": "achievement-id",
+  "valid_from": "2026-01-01T00:00:00Z",
+  "valid_until": "2026-12-31T23:59:59Z"
+}

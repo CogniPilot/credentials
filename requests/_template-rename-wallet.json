@@ -1,0 +1,9 @@
+{
+  "_comment": "Template to RENAME a wallet slug. Use when user wants a different URL.",
+  "_note": "Finds wallet by email, renames slug, updates all credential URLs.",
+
+  "request_type": "rename_wallet",
+  "recipient_email": "email@example.com",
+  "recipient_name": "Display Name (optional update)",
+  "new_wallet_slug": "new-slug-name"
+}

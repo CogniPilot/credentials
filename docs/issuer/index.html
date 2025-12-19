@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="application/ld+json">
+    <link rel="alternate" type="application/ld+json" href="/issuer.json">
+    <title>CogniPilot Foundation - Issuer Profile</title>
+    <script>
+        // Check if this is a machine client requesting JSON-LD
+        // Validators and automated tools often have specific Accept headers or user agents
+        (function() {
+            // If URL has .json suffix or explicit json parameter, redirect to JSON
+            if (window.location.search.includes('format=json')) {
+                window.location.replace('/issuer.json');
+                return;
+            }
+
+            // For normal browsers, redirect to the human-readable issuer page
+            // Machine clients (curl, validators) will get the JSON-LD below
+            if (navigator.userAgent &&
+                !navigator.userAgent.includes('curl') &&
+                !navigator.userAgent.includes('wget') &&
+                !navigator.userAgent.includes('Java') &&
+                !navigator.userAgent.includes('python') &&
+                !navigator.userAgent.includes('Python') &&
+                !navigator.userAgent.includes('validator') &&
+                !navigator.userAgent.includes('bot') &&
+                !navigator.userAgent.includes('Bot')) {
+                window.location.replace('/issuer.html');
+            }
+        })();
+    </script>
+</head>
+<body>
+<script type="application/ld+json">
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json",
+    "https://w3id.org/security/data-integrity/v2"
+  ],
+  "id": "https://credentials.cognipilot.org/issuer.json",
+  "type": ["Profile"],
+  "name": "CogniPilot",
+  "url": "https://cognipilot.org",
+  "description": "CogniPilot is an open source project for the next generation of autonomous systems.",
+  "email": "info@cognipilot.org",
+  "image": {
+    "id": "https://credentials.cognipilot.org/images/cognipilot-logo.png",
+    "type": "Image"
+  },
+  "verificationMethod": [{
+    "id": "https://credentials.cognipilot.org/issuer.json#key-1",
+    "type": "Multikey",
+    "controller": "https://credentials.cognipilot.org/issuer.json",
+    "publicKeyMultibase": "z6Mkp7ErHCMw7ofrmXRnc17RuppRRJnAdAkdACwFUmxmeRVS"
+  }]
+}
+</script>
+<pre>{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json",
+    "https://w3id.org/security/data-integrity/v2"
+  ],
+  "id": "https://credentials.cognipilot.org/issuer.json",
+  "type": ["Profile"],
+  "name": "CogniPilot",
+  "url": "https://cognipilot.org",
+  "description": "CogniPilot is an open source project for the next generation of autonomous systems.",
+  "email": "info@cognipilot.org",
+  "image": {
+    "id": "https://credentials.cognipilot.org/images/cognipilot-logo.png",
+    "type": "Image"
+  },
+  "verificationMethod": [{
+    "id": "https://credentials.cognipilot.org/issuer.json#key-1",
+    "type": "Multikey",
+    "controller": "https://credentials.cognipilot.org/issuer.json",
+    "publicKeyMultibase": "z6Mkp7ErHCMw7ofrmXRnc17RuppRRJnAdAkdACwFUmxmeRVS"
+  }]
+}</pre>
+<p><a href="/issuer.html">View human-readable issuer profile</a></p>
+<p><a href="/issuer.json">Download JSON-LD file</a></p>
+</body>
+</html>

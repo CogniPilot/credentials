@@ -1,0 +1,24 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json"
+  ],
+  "id": "https://credentials.cognipilot.org/achievements/tsc-member-2028",
+  "type": ["Achievement"],
+  "name": "CogniPilot TSC Member 2028",
+  "description": "Awarded to members of the CogniPilot Technical Steering Committee for the 2028 term.",
+  "achievementType": "Membership",
+  "image": {
+    "id": "https://credentials.cognipilot.org/images/badges/TSCMember2028.svg",
+    "type": "Image"
+  },
+  "criteria": {
+    "narrative": "This badge is awarded to individuals serving on the CogniPilot Technical Steering Committee (TSC) for the 2028 term. TSC members provide technical leadership and guidance for the CogniPilot project."
+  },
+  "issuer": {
+    "id": "https://credentials.cognipilot.org/issuer.json",
+    "type": ["Profile"],
+    "name": "CogniPilot Foundation"
+  },
+  "tag": ["Leadership", "Technical", "2028"]
+}

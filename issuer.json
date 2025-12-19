@@ -1,0 +1,16 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json"
+  ],
+  "id": "did:web:credentials.cognipilot.org",
+  "type": "Profile",
+  "name": "CogniPilot Foundation",
+  "url": "https://cognipilot.org",
+  "description": "CogniPilot is an open source project for the next generation of autonomous systems.",
+  "email": "info@cognipilot.org",
+  "image": {
+    "id": "https://credentials.cognipilot.org/images/cognipilot-logo.png",
+    "type": "Image"
+  }
+}

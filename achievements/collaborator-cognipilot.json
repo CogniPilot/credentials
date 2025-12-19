@@ -1,0 +1,24 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json"
+  ],
+  "id": "https://credentials.cognipilot.org/achievements/collaborator-cognipilot",
+  "type": ["Achievement"],
+  "name": "CogniPilot Collaborator",
+  "description": "Awarded to collaborators who actively contribute to the CogniPilot project through code, documentation, or community support.",
+  "achievementType": "ext:Role",
+  "image": {
+    "id": "https://credentials.cognipilot.org/images/badges/CollaboratorCogniPilot.svg",
+    "type": "Image"
+  },
+  "criteria": {
+    "narrative": "This badge is awarded to individuals who have demonstrated sustained contribution to the CogniPilot project. Collaborators work closely with maintainers and contribute significantly to the project's development."
+  },
+  "issuer": {
+    "id": "https://credentials.cognipilot.org/issuer.json",
+    "type": ["Profile"],
+    "name": "CogniPilot Foundation"
+  },
+  "tag": ["Role", "Collaborator", "CogniPilot"]
+}

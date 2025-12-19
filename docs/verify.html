@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Credential - CogniPilot Credentials</title>
+    <meta name="description" content="Verify the authenticity of CogniPilot OpenBadges 3.0 digital credentials.">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .verify-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+            padding: 48px 0;
+        }
+
+        @media (max-width: 900px) {
+            .verify-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .verify-card {
+            background: var(--color-bg-card);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-border);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--color-border-light);
+            border-radius: var(--radius-lg);
+            padding: 48px 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--color-bg-darker);
+        }
+
+        .upload-area:hover {
+            border-color: var(--color-primary);
+            background: rgba(125, 182, 177, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--color-primary);
+            background: rgba(125, 182, 177, 0.15);
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            color: var(--color-primary);
+        }
+
+        .upload-area p {
+            margin: 0 0 8px;
+            color: var(--color-text);
+        }
+
+        .upload-area .hint {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-bottom: 16px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .or-divider {
+            text-align: center;
+            margin: 24px 0;
+            color: var(--color-text-muted);
+            position: relative;
+            font-family: var(--font-heading);
+        }
+
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: var(--color-border);
+        }
+
+        .or-divider::before { left: 0; }
+        .or-divider::after { right: 0; }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 16px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-family: monospace;
+            font-size: 0.8125rem;
+            resize: vertical;
+            background: var(--color-bg-darker);
+            color: var(--color-text);
+        }
+
+        textarea::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(125, 182, 177, 0.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 48px;
+            color: var(--color-text-secondary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--color-border);
+            border-top: 3px solid var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            margin-top: 24px;
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin: -24px -24px 24px -24px;
+        }
+
+        .result.success .result-header {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .result.warning .result-header {
+            background: #FFC107;
+            color: #1a1a1a;
+        }
+
+        .result.error .result-header {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .result.info .result-header {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .result-header svg {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .result-header h3 {
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .expiration-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: var(--font-heading);
+        }
+
+        .expiration-badge.valid {
+            background: rgba(76, 175, 80, 0.15);
+            color: var(--color-success);
+        }
+
+        .expiration-badge.expiring-soon {
+            background: rgba(255, 193, 7, 0.15);
+            color: #D4A000;
+        }
+
+        .expiration-badge.expired {
+            background: rgba(155, 35, 53, 0.15);
+            color: var(--color-danger);
+        }
+
+        .expiration-badge svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .details {
+            display: grid;
+            gap: 16px;
+        }
+
+        .detail-row {
+            display: flex;
+            gap: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .detail-label {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            min-width: 120px;
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .detail-value {
+            color: var(--color-text);
+            flex: 1;
+        }
+
+        .credential-id {
+            font-family: monospace;
+            font-size: 0.8125rem;
+            color: var(--color-text-secondary);
+            word-break: break-all;
+        }
+
+        .result ul {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--color-text);
+        }
+
+        .result.error ul li {
+            margin-bottom: 8px;
+        }
+
+        #result-section {
+            margin-bottom: 32px;
+        }
+
+        #result-section .result {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .verify-container.de-emphasized {
+            opacity: 0.85;
+        }
+
+        .verify-container.de-emphasized .upload-area {
+            padding: 32px 24px;
+        }
+
+        .verify-container.de-emphasized .upload-icon {
+            width: 36px;
+            height: 36px;
+        }
+
+        .verify-container.de-emphasized textarea {
+            height: 120px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="nav-brand">
+                <img src="/images/cognipilot-logo.png" alt="CogniPilot" class="nav-logo">
+                <span>CogniPilot Credentials</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/issuer.html" class="nav-link">Issuer</a>
+                <a href="/badges/" class="nav-link">Badges</a>
+                <a href="/verify.html" class="nav-link active">Verify</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1 id="page-title">Verify Credential</h1>
+            <p id="page-subtitle">Upload a credential file to verify its authenticity</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Result section - shown at top when verifying a credential -->
+        <div id="result-section" style="display: none;">
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Verifying credential...</p>
+            </div>
+            <div id="result"></div>
+        </div>
+
+        <div class="verify-container">
+            <div>
+                <div class="verify-card" id="upload-card">
+                    <div id="upload-section">
+                        <h3 id="upload-title" style="margin-top: 0; margin-bottom: 16px; color: var(--color-text);">Verify Another Credential</h3>
+                        <div class="upload-area" id="dropzone">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <p>Drag & drop a credential file here</p>
+                            <p class="hint">Supports .json or .svg (baked badge)</p>
+                            <input type="file" id="fileInput" accept=".json,.svg">
+                            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">Choose File</button>
+                        </div>
+
+                        <div class="or-divider">or paste JSON</div>
+
+                        <textarea id="jsonInput" placeholder="Paste credential JSON here..."></textarea>
+                        <div style="margin-top: 16px;">
+                            <button class="btn btn-primary" onclick="verifyFromTextarea()">Verify Credential</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="info-card">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        About Verification
+                    </h3>
+                    <p style="color: var(--color-text-secondary); margin-bottom: 16px;">
+                        This page verifies credentials signed with the <code>eddsa-jcs-2022</code> cryptosuite.
+                    </p>
+                    <p style="color: var(--color-text-secondary); margin-bottom: 8px;"><strong>Verification checks:</strong></p>
+                    <ul>
+                        <li>Valid Data Integrity proof</li>
+                        <li>Signature matches issuer's public key</li>
+                        <li>Credential hasn't been tampered with</li>
+                        <li>Credential expiration status</li>
+                    </ul>
+                </div>
+
+                <div class="info-card" style="margin-top: 16px;">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        Issuer Public Key
+                    </h3>
+                    <div class="key-label">Ed25519 (Multibase)</div>
+                    <div class="key-display">z6Mkp7ErHCMw7ofrmXRnc17RuppRRJnAdAkdACwFUmxmeRVS</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="/images/cognipilot-logo.png" alt="CogniPilot" class="footer-logo">
+                    <span>CogniPilot Foundation</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://cognipilot.org" target="_blank">Website</a>
+                    <a href="https://github.com/cognipilot" target="_blank">GitHub</a>
+                    <a href="mailto:info@cognipilot.org">Contact</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CogniPilot Foundation. Credentials issued under OpenBadges 3.0.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // CogniPilot public key (Ed25519, multibase encoded)
+        const PUBLIC_KEY_MULTIBASE = 'z6Mkp7ErHCMw7ofrmXRnc17RuppRRJnAdAkdACwFUmxmeRVS';
+
+        // Base58 alphabet
+        const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+
+        function base58Decode(str) {
+            const bytes = [];
+            for (let i = 0; i < str.length; i++) {
+                const char = str[i];
+                const index = BASE58_ALPHABET.indexOf(char);
+                if (index === -1) throw new Error('Invalid base58 character');
+
+                let carry = index;
+                for (let j = 0; j < bytes.length; j++) {
+                    carry += bytes[j] * 58;
+                    bytes[j] = carry & 0xff;
+                    carry >>= 8;
+                }
+                while (carry > 0) {
+                    bytes.push(carry & 0xff);
+                    carry >>= 8;
+                }
+            }
+            // Handle leading zeros
+            for (let i = 0; i < str.length && str[i] === '1'; i++) {
+                bytes.push(0);
+            }
+            return new Uint8Array(bytes.reverse());
+        }
+
+        function decodeMultibase(value) {
+            if (!value.startsWith('z')) {
+                throw new Error('Unsupported multibase prefix');
+            }
+            return base58Decode(value.slice(1));
+        }
+
+        function jcsCanonicalize(obj) {
+            // JCS (RFC 8785) requires recursive key sorting
+            function sortKeys(value) {
+                if (value === null || typeof value !== 'object') {
+                    return value;
+                }
+                if (Array.isArray(value)) {
+                    return value.map(sortKeys);
+                }
+                const sorted = {};
+                const keys = Object.keys(value).sort();
+                for (const key of keys) {
+                    sorted[key] = sortKeys(value[key]);
+                }
+                return sorted;
+            }
+            return JSON.stringify(sortKeys(obj));
+        }
+
+        async function sha256(data) {
+            const encoder = new TextEncoder();
+            const buffer = encoder.encode(data);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+            return new Uint8Array(hashBuffer);
+        }
+
+        async function verifyEd25519(publicKey, signature, message) {
+            try {
+                const cryptoKey = await crypto.subtle.importKey(
+                    'raw',
+                    publicKey,
+                    { name: 'Ed25519' },
+                    false,
+                    ['verify']
+                );
+                return await crypto.subtle.verify(
+                    { name: 'Ed25519' },
+                    cryptoKey,
+                    signature,
+                    message
+                );
+            } catch (e) {
+                console.error('Ed25519 verification error:', e);
+                return false;
+            }
+        }
+
+        async function verifyCredential(credential) {
+            const result = {
+                verified: false,
+                errors: [],
+                credential_id: credential.id || 'unknown',
+                issuer: null,
+                subject: null,
+                achievement: null,
+                achievementImage: null,
+                proof: null
+            };
+
+            // Check for proof
+            if (!credential.proof) {
+                result.errors.push('No proof found in credential');
+                return result;
+            }
+
+            const proof = credential.proof;
+            result.proof = {
+                type: proof.type,
+                cryptosuite: proof.cryptosuite,
+                created: proof.created,
+                verificationMethod: proof.verificationMethod
+            };
+
+            // Validate proof type
+            if (proof.type !== 'DataIntegrityProof') {
+                result.errors.push(`Unsupported proof type: ${proof.type}`);
+                return result;
+            }
+
+            if (proof.cryptosuite !== 'eddsa-jcs-2022') {
+                result.errors.push(`Unsupported cryptosuite: ${proof.cryptosuite}`);
+                return result;
+            }
+
+            // Decode signature
+            let signature;
+            try {
+                signature = decodeMultibase(proof.proofValue);
+            } catch (e) {
+                result.errors.push(`Failed to decode proofValue: ${e.message}`);
+                return result;
+            }
+
+            // Get public key
+            let publicKey;
+            try {
+                const decoded = decodeMultibase(PUBLIC_KEY_MULTIBASE);
+                // Remove multicodec header (0xed01 for ed25519-pub)
+                publicKey = decoded.slice(2);
+            } catch (e) {
+                result.errors.push(`Failed to decode public key: ${e.message}`);
+                return result;
+            }
+
+            // Recreate proof config (matches Python signing - excludes @context)
+            // The @context is added to the proof AFTER signing, so it must not be included here
+            const proofConfig = {
+                type: proof.type,
+                cryptosuite: proof.cryptosuite,
+                verificationMethod: proof.verificationMethod,
+                created: proof.created,
+                proofPurpose: proof.proofPurpose
+            };
+
+            // Get credential without proof
+            const credentialCopy = {};
+            for (const key of Object.keys(credential)) {
+                if (key !== 'proof') {
+                    credentialCopy[key] = credential[key];
+                }
+            }
+
+            // Canonicalize and hash
+            const canonicalProof = jcsCanonicalize(proofConfig);
+            const canonicalCredential = jcsCanonicalize(credentialCopy);
+
+            const proofHash = await sha256(canonicalProof);
+            const credentialHash = await sha256(canonicalCredential);
+
+            // Combine hashes
+            const combined = new Uint8Array(proofHash.length + credentialHash.length);
+            combined.set(proofHash, 0);
+            combined.set(credentialHash, proofHash.length);
+
+            // Verify signature
+            const isValid = await verifyEd25519(publicKey, signature, combined);
+
+            if (!isValid) {
+                result.errors.push('Signature verification failed');
+                return result;
+            }
+
+            result.verified = true;
+
+            // Extract info
+            const issuer = credential.issuer;
+            result.issuer = typeof issuer === 'object' ? (issuer.name || issuer.id) : issuer;
+
+            const subject = credential.credentialSubject || {};
+            result.subject = subject.name || subject.id || 'unknown';
+
+            const achievement = subject.achievement || {};
+            result.achievement = achievement.name || 'unknown';
+            result.description = achievement.description || '';
+            result.validFrom = credential.validFrom || '';
+            result.validUntil = credential.validUntil || '';
+
+            // Get badge image URL
+            const achievementImage = achievement.image;
+            if (achievementImage) {
+                const imageUrl = typeof achievementImage === 'object' ? achievementImage.id : achievementImage;
+                // Convert SVG URL to PNG for display
+                result.achievementImage = imageUrl ? imageUrl.replace('.svg', '.png') : null;
+            }
+
+            return result;
+        }
+
+        function extractCredentialFromSVG(svgContent) {
+            const match = svgContent.match(/<openbadges:credential[^>]*>\s*([A-Za-z0-9+/=]+)\s*<\/openbadges:credential>/);
+            if (!match) {
+                throw new Error('No embedded credential found in SVG');
+            }
+            const base64 = match[1];
+            const json = atob(base64);
+            return JSON.parse(json);
+        }
+
+        function getExpirationStatus(validUntil) {
+            if (!validUntil) {
+                return { status: 'none', label: 'No Expiration', class: 'valid' };
+            }
+
+            const now = new Date();
+            const expirationDate = new Date(validUntil);
+            const daysUntilExpiration = Math.ceil((expirationDate - now) / (1000 * 60 * 60 * 24));
+
+            if (daysUntilExpiration < 0) {
+                return {
+                    status: 'expired',
+                    label: 'Expired',
+                    class: 'expired',
+                    daysAgo: Math.abs(daysUntilExpiration)
+                };
+            } else if (daysUntilExpiration <= 30) {
+                return {
+                    status: 'expiring-soon',
+                    label: `Expires in ${daysUntilExpiration} day${daysUntilExpiration !== 1 ? 's' : ''}`,
+                    class: 'expiring-soon',
+                    daysLeft: daysUntilExpiration
+                };
+            } else {
+                return {
+                    status: 'valid',
+                    label: 'Valid',
+                    class: 'valid',
+                    daysLeft: daysUntilExpiration
+                };
+            }
+        }
+
+        function getExpirationBadgeHTML(expStatus) {
+            const icons = {
+                valid: '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>',
+                'expiring-soon': '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>',
+                expired: '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>'
+            };
+            return `<span class="expiration-badge ${expStatus.class}">${icons[expStatus.status] || icons.valid} ${expStatus.label}</span>`;
+        }
+
+        function showResult(result) {
+            const resultDiv = document.getElementById('result');
+
+            if (result.verified) {
+                const expStatus = getExpirationStatus(result.validUntil);
+                const isExpired = expStatus.status === 'expired';
+                const resultClass = isExpired ? 'warning' : 'success';
+                const headerText = isExpired ? 'Credential Verified (Expired)' : 'Credential Verified';
+                const headerIcon = isExpired
+                    ? '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>'
+                    : '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>';
+
+                const badgeImageHtml = result.achievementImage
+                    ? `<div style="text-align: center; margin-bottom: 24px;">
+                         <img src="${result.achievementImage}" alt="${result.achievement}" style="max-width: 180px; height: auto; border-radius: 8px;">
+                       </div>`
+                    : '';
+
+                resultDiv.innerHTML = `
+                    <div class="result ${resultClass}">
+                        <div class="result-header">
+                            ${headerIcon}
+                            <h3>${headerText}</h3>
+                        </div>
+                        ${badgeImageHtml}
+                        <div class="details">
+                            <div class="detail-row">
+                                <span class="detail-label">Achievement</span>
+                                <span class="detail-value">${result.achievement}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Recipient</span>
+                                <span class="detail-value">${result.subject}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Issuer</span>
+                                <span class="detail-value">${result.issuer}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Valid From</span>
+                                <span class="detail-value">${result.validFrom ? new Date(result.validFrom).toLocaleDateString() : 'N/A'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Valid Until</span>
+                                <span class="detail-value">
+                                    ${result.validUntil ? new Date(result.validUntil).toLocaleDateString() : 'No Expiration'}
+                                    ${getExpirationBadgeHTML(expStatus)}
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Signed</span>
+                                <span class="detail-value">${result.proof?.created ? new Date(result.proof.created).toLocaleString() : 'N/A'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Credential ID</span>
+                                <span class="detail-value credential-id">${result.credential_id}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <div class="result-header">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            <h3>Verification Failed</h3>
+                        </div>
+                        <ul>
+                            ${result.errors.map(e => `<li>${e}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+
+        function showError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="result error">
+                    <div class="result-header">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                        <h3>Error</h3>
+                    </div>
+                    <p style="margin: 0;">${message}</p>
+                </div>
+            `;
+        }
+
+        async function processFile(file) {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').innerHTML = '';
+
+            try {
+                const content = await file.text();
+                let credential;
+
+                if (file.name.endsWith('.svg')) {
+                    credential = extractCredentialFromSVG(content);
+                } else {
+                    credential = JSON.parse(content);
+                }
+
+                const result = await verifyCredential(credential);
+                showResult(result);
+            } catch (e) {
+                showError(e.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        async function verifyFromTextarea() {
+            const jsonInput = document.getElementById('jsonInput');
+            const content = jsonInput.value.trim();
+
+            if (!content) {
+                showError('Please paste credential JSON');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').innerHTML = '';
+
+            try {
+                const credential = JSON.parse(content);
+                const result = await verifyCredential(credential);
+                showResult(result);
+            } catch (e) {
+                showError(e.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // File input handling
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                processFile(e.target.files[0]);
+            }
+        });
+
+        // Drag and drop
+        const dropzone = document.getElementById('dropzone');
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                processFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Fetch and verify credential from assertion URL
+        async function fetchAndVerify(credentialPath) {
+            // Show result section at top, hide upload title
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('upload-title').style.display = 'block';
+
+            try {
+                // Try multiple URL patterns to find the credential
+                const urlsToTry = [];
+
+                // If path contains a slash, it's wallet-slug/achievement-id format
+                if (credentialPath.includes('/')) {
+                    urlsToTry.push(`/profile/${credentialPath}/credential.json`);
+                }
+
+                // Also try legacy /credentials/ path
+                const credentialId = credentialPath.split('/').pop();
+                urlsToTry.push(`/credentials/${credentialId}.json`);
+
+                let credential = null;
+                let lastError = null;
+
+                for (const url of urlsToTry) {
+                    try {
+                        const response = await fetch(url);
+                        if (response.ok) {
+                            credential = await response.json();
+                            break;
+                        }
+                    } catch (e) {
+                        lastError = e;
+                    }
+                }
+
+                if (!credential) {
+                    throw new Error(`Credential not found. The credential "${credentialPath}" is not hosted on this server. Please upload the credential file directly.`);
+                }
+
+                const result = await verifyCredential(credential);
+                showResult(result);
+
+                // Update page title to show credential name
+                if (result.verified) {
+                    document.getElementById('page-title').textContent = result.achievement;
+                    document.getElementById('page-subtitle').textContent = `Awarded to ${result.subject}`;
+                    // De-emphasize the upload section
+                    document.querySelector('.verify-container').classList.add('de-emphasized');
+                }
+            } catch (e) {
+                showError(e.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Check for credential ID in URL hash
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.slice(1);
+            if (hash) {
+                // Automatically fetch and verify the credential
+                fetchAndVerify(hash);
+            } else {
+                // No hash - hide the "Verify Another" title since this is the main action
+                document.getElementById('upload-title').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

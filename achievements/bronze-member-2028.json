@@ -1,0 +1,24 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json"
+  ],
+  "id": "https://credentials.cognipilot.org/achievements/bronze-member-2028",
+  "type": ["Achievement"],
+  "name": "CogniPilot Bronze Member 2028",
+  "description": "Awarded to Bronze-level supporters of the CogniPilot Foundation for 2028.",
+  "achievementType": "Membership",
+  "image": {
+    "id": "https://credentials.cognipilot.org/images/badges/BronzeMember2028.svg",
+    "type": "Image"
+  },
+  "criteria": {
+    "narrative": "This badge is awarded to organizations and individuals who have provided Bronze-level financial support to the CogniPilot Foundation for the 2028 year. Bronze members help sustain the open source robotics community."
+  },
+  "issuer": {
+    "id": "https://credentials.cognipilot.org/issuer.json",
+    "type": ["Profile"],
+    "name": "CogniPilot Foundation"
+  },
+  "tag": ["Supporter", "Bronze", "2028"]
+}

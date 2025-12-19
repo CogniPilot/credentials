@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CogniPilot Credentials</title>
+    <meta name="description" content="Digital credentials and badges issued by CogniPilot Foundation for robotics education and community participation.">
+    <meta property="og:title" content="CogniPilot Credentials">
+    <meta property="og:description" content="Digital credentials and badges issued by CogniPilot Foundation">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://credentials.cognipilot.org">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="nav-brand">
+                <img src="/images/cognipilot-logo.png" alt="CogniPilot" class="nav-logo">
+                <span>CogniPilot Credentials</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">Home</a>
+                <a href="/issuer.html" class="nav-link">Issuer</a>
+                <a href="/badges/" class="nav-link">Badges</a>
+                <a href="/verify.html" class="nav-link">Verify</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h1>CogniPilot Digital Credentials</h1>
+            <p class="hero-subtitle">Verifiable digital badges for robotics education and community participation</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="section">
+            <div class="issuer-card">
+                <div class="issuer-header">
+                    <img src="/images/cognipilot-logo.png" alt="CogniPilot Foundation" class="issuer-logo">
+                    <div class="issuer-info">
+                        <h2>CogniPilot Foundation</h2>
+                        <p class="issuer-url"><a href="https://cognipilot.org" target="_blank">cognipilot.org</a></p>
+                    </div>
+                </div>
+                <p class="issuer-description">CogniPilot is an open source project for the next generation of autonomous systems. We issue verifiable digital credentials to recognize community participation, course completion, and technical achievements.</p>
+                <a href="/issuer.html" class="btn btn-outline">View Issuer Profile</a>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Available Badges</h2>
+            <div class="badge-grid" id="badge-grid">
+                <!-- Badges will be loaded dynamically -->
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3>Cryptographically Signed</h3>
+                    <p>All credentials are signed with Ed25519 digital signatures using the eddsa-jcs-2022 cryptosuite.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                        </svg>
+                    </div>
+                    <h3>Open Standards</h3>
+                    <p>Built on OpenBadges 3.0 and W3C Verifiable Credentials for maximum interoperability.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                        </svg>
+                    </div>
+                    <h3>Shareable</h3>
+                    <p>Share your credentials on LinkedIn, embed in portfolios, or display anywhere with QR codes.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="cta-card">
+                <h2>Verify a Credential</h2>
+                <p>Have a CogniPilot badge or credential? Verify its authenticity using our verification tool.</p>
+                <a href="/verify.html" class="btn btn-primary">Verify Credential</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="/images/cognipilot-logo.png" alt="CogniPilot" class="footer-logo">
+                    <span>CogniPilot Foundation</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://cognipilot.org" target="_blank">Website</a>
+                    <a href="https://github.com/cognipilot" target="_blank">GitHub</a>
+                    <a href="mailto:info@cognipilot.org">Contact</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CogniPilot Foundation. Credentials issued under OpenBadges 3.0.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Load badges from achievements directory
+        async function loadBadges() {
+            const badgeGrid = document.getElementById('badge-grid');
+            const badges = [
+                // Leadership - Board of Directors
+                'board-of-directors-2026',
+                // Leadership - TSC Members
+                'tsc-member-2026',
+                // Project Roles
+                'maintainer-cognipilot',
+                'maintainer-rumoca',
+                'collaborator-cognipilot',
+                'contributor-cognipilot',
+                // Supporters - Gold
+                'gold-member-2026',
+                // Supporters - Silver
+                'silver-member-2026',
+                // Supporters - Bronze
+                'bronze-member-2026'
+            ];
+
+            for (const badgeId of badges) {
+                try {
+                    const response = await fetch(`/achievements/${badgeId}.json`);
+                    if (response.ok) {
+                        const badge = await response.json();
+                        badgeGrid.appendChild(createBadgeCard(badge, badgeId));
+                    }
+                } catch (e) {
+                    console.error(`Failed to load badge: ${badgeId}`, e);
+                }
+            }
+        }
+
+        function createBadgeCard(badge, badgeId) {
+            const card = document.createElement('a');
+            card.href = `/badges/badge.html?id=${badgeId}`;
+            card.className = 'badge-card';
+
+            const imageUrl = badge.image?.id || badge.image || '/images/default-badge.svg';
+
+            card.innerHTML = `
+                <div class="badge-image">
+                    <img src="${imageUrl.replace('https://credentials.cognipilot.org', '')}" alt="${badge.name}" onerror="this.src='/images/default-badge.svg'">
+                </div>
+                <div class="badge-info">
+                    <h3>${badge.name}</h3>
+                    <p>${badge.description}</p>
+                    <span class="badge-type">${badge.achievementType || 'Achievement'}</span>
+                </div>
+            `;
+
+            return card;
+        }
+
+        document.addEventListener('DOMContentLoaded', loadBadges);
+    </script>
+</body>
+</html>

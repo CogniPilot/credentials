@@ -1,0 +1,24 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json"
+  ],
+  "id": "https://credentials.cognipilot.org/achievements/contributor-cognipilot",
+  "type": ["Achievement"],
+  "name": "CogniPilot Contributor",
+  "description": "Awarded to contributors who have made meaningful contributions to the CogniPilot project.",
+  "achievementType": "ext:Role",
+  "image": {
+    "id": "https://credentials.cognipilot.org/images/badges/ContributorCogniPilot.svg",
+    "type": "Image"
+  },
+  "criteria": {
+    "narrative": "This badge is awarded to individuals who have contributed to the CogniPilot project through accepted pull requests, bug reports, documentation improvements, or other valuable contributions."
+  },
+  "issuer": {
+    "id": "https://credentials.cognipilot.org/issuer.json",
+    "type": ["Profile"],
+    "name": "CogniPilot Foundation"
+  },
+  "tag": ["Role", "Contributor", "CogniPilot"]
+}

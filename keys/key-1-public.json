@@ -1,0 +1,6 @@
+{
+  "id": "https://credentials.cognipilot.org/issuer#key-1",
+  "type": "Multikey",
+  "controller": "https://credentials.cognipilot.org/issuer",
+  "publicKeyMultibase": "z6Mkp7ErHCMw7ofrmXRnc17RuppRRJnAdAkdACwFUmxmeRVS"
+}

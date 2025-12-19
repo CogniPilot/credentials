@@ -1,0 +1,29 @@
+# Private keys - NEVER commit these
+keys/*-private.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.env
+
+# Issued credentials in root (may contain PII)
+/credentials/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# MkDocs build output
+site/
+
+# OS
+.DS_Store
+Thumbs.db
