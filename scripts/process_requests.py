@@ -509,7 +509,7 @@ def generate_credential_page(
             text-align: center;
         }}
         .badge-image img {{
-            max-width: 200px;
+            max-width: 400px;
             height: auto;
         }}
         .credential-details {{
