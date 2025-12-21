@@ -423,10 +423,10 @@ def svg_to_png(svg_content: str, output_path: Path, width: int = 500,
         badge_img = Image.open(io.BytesIO(png_data)).convert('RGBA')
         background = Image.new('RGBA', (li_width, li_height), (0, 0, 0, 0))  # Fully transparent
 
-        # Draw 1px solid black border
+        # Draw 1px solid dark grey border
         from PIL import ImageDraw
         draw = ImageDraw.Draw(background)
-        border_color = (0, 0, 0, 255)  # Black with full opacity
+        border_color = (64, 64, 64, 255)  # Dark grey with full opacity
         # Top edge
         draw.line([(0, 0), (li_width - 1, 0)], fill=border_color, width=1)
         # Bottom edge

@@ -470,8 +470,8 @@ def generate_credential_page(
     # Extract achievement_id from credential ID URL (last path segment)
     achievement_id = cred_id.split('/')[-1] if cred_id else ''
 
-    # Use PNG for badge display
-    badge_embed = f'<div class="badge-image"><img src="badge.png" alt="{name}"></div>'
+    # Use SVG for badge display on page (PNG used for LinkedIn og:image)
+    badge_embed = f'<div class="badge-image"><img src="badge.svg" alt="{name}"></div>'
 
     linkedin_url = generate_linkedin_url(credential, credential_page_url)
     wallet_url = f"/profile/{wallet_slug}/wallet"
