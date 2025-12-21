@@ -21,7 +21,7 @@ env/
 *.swp
 *.swo
 
-# MkDocs build output
+# Build output
 site/
 
 # OS
