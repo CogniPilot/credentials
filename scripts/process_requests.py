@@ -255,6 +255,7 @@ def create_credential(
                 "achievementType": achievement.get('achievementType'),
                 "name": achievement.get('name'),
                 "description": achievement.get('description'),
+                "image": achievement.get('image'),
                 "criteria": achievement.get('criteria')
             }
         }
