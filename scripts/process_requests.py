@@ -390,8 +390,9 @@ def generate_wallet_page(
             margin-bottom: 24px;
         }}
         .update-link {{
-            margin-top: 8px;
+            margin-top: 24px;
             font-size: 0.75rem;
+            text-align: center;
         }}
         .update-link a {{
             color: var(--color-text-muted);
@@ -429,6 +430,8 @@ def generate_wallet_page(
         <div class="credentials-grid">
             {cards_html}
         </div>
+
+        <p class="update-link"><a href="https://github.com/CogniPilot/credentials/issues/new?template=update-credential.yml" target="_blank">Update email or profile URL</a></p>
     </main>
 
     <footer class="footer">
@@ -445,7 +448,6 @@ def generate_wallet_page(
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2024-2025 CogniPilot Foundation. Credentials issued as OpenBadges 3.0.</p>
-                <p class="update-link"><a href="https://github.com/CogniPilot/credentials/issues/new?template=update-credential.yml" target="_blank">Update email or profile URL</a></p>
             </div>
         </div>
     </footer>
