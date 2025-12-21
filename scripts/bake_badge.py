@@ -418,15 +418,15 @@ def svg_to_png(svg_content: str, output_path: Path, width: int = 500,
             output_height=badge_size
         )
 
-        # Create transparent background with 1px near-transparent border
+        # Create transparent background with 1px solid black border
         # The border prevents LinkedIn from cropping away the transparent padding
         badge_img = Image.open(io.BytesIO(png_data)).convert('RGBA')
         background = Image.new('RGBA', (li_width, li_height), (0, 0, 0, 0))  # Fully transparent
 
-        # Draw 1px border with near-transparent white (#FFFFFF01)
+        # Draw 1px solid black border
         from PIL import ImageDraw
         draw = ImageDraw.Draw(background)
-        border_color = (255, 255, 255, 1)  # #FFFFFF with alpha=1 (nearly transparent)
+        border_color = (0, 0, 0, 255)  # Black with full opacity
         # Top edge
         draw.line([(0, 0), (li_width - 1, 0)], fill=border_color, width=1)
         # Bottom edge
