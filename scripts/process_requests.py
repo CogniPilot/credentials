@@ -608,6 +608,18 @@ def generate_credential_page(
             background: #005885;
             color: white;
         }}
+        .linkedin-help {{
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }}
+        .linkedin-help a {{
+            color: var(--color-text-muted);
+            text-decoration: none;
+        }}
+        .linkedin-help a:hover {{
+            color: var(--color-primary);
+            text-decoration: underline;
+        }}
         .download-section {{
             border-top: 1px solid var(--color-border);
             padding-top: 20px;
@@ -704,6 +716,9 @@ def generate_credential_page(
                     <a href="/verify#{wallet_slug}/{achievement_id}" class="btn btn-secondary">
                         Verify
                     </a>
+                </div>
+                <div class="linkedin-help">
+                    <a href="/linkedin-guide.html">Need help adding to LinkedIn?</a>
                 </div>
 
                 <div class="credential-meta">
