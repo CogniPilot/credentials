@@ -312,6 +312,7 @@ def generate_wallet_page(
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{recipient_name} - Credential Wallet | CogniPilot</title>
     <meta property="og:title" content="{recipient_name}'s Credentials">
@@ -481,6 +482,7 @@ def generate_credential_page(
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{name} - {recipient_name} | CogniPilot</title>
     <meta property="og:title" content="{name}">
