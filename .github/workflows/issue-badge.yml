@@ -212,6 +212,8 @@ jobs:
             **Share on LinkedIn:**
             [Add to LinkedIn Profile](${linkedinUrl})
 
+            For step-by-step instructions on adding this credential to LinkedIn, see our [LinkedIn Guide](https://credentials.cognipilot.org/linkedin-guide.html).
+
             The credential page will be live shortly after the site deploys.`;
 
             await github.rest.issues.createComment({
