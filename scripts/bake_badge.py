@@ -322,63 +322,73 @@ def add_earner_name(svg_content: str, earner_name: str,
     return svg_content
 
 
-def bake_png(image: 'Image', credential_url: str) -> 'Image':
+def bake_png(image: 'Image', credential: dict) -> 'Image':
     """
-    Bake a credential URL into a PNG image's metadata.
+    Bake a credential into a PNG image's metadata.
 
-    Per OpenBadges 3.0 specification, the credential is referenced via a URL
-    stored in a PNG tEXt chunk with the keyword 'openbadges'.
+    Per OpenBadges 3.0 specification, the credential JSON is stored
+    in a PNG iTXt chunk with the keyword 'openbadgecredential'.
 
     Args:
         image: PIL Image object
-        credential_url: URL to the credential JSON
+        credential: The credential as a dictionary
 
     Returns:
         PIL Image with credential metadata baked in
     """
     from PIL import PngImagePlugin
 
-    # Create metadata with openbadges key
+    # Serialize credential to compact JSON
+    credential_json = json.dumps(credential, separators=(',', ':'))
+
+    # Create metadata with openbadgecredential key (OB 3.0 spec)
+    # Use iTXt chunk for UTF-8 support (required by 1EdTech validator)
     metadata = PngImagePlugin.PngInfo()
-    metadata.add_text("openbadges", credential_url)
+    metadata.add_itxt("openbadgecredential", credential_json)
 
     # Store metadata in image info for later saving
     image.info['pnginfo'] = metadata
-    image.info['openbadges'] = credential_url
+    image.info['openbadgecredential'] = credential_json
 
     return image
 
 
-def extract_credential_from_png(png_path: Path) -> str | None:
+def extract_credential_from_png(png_path: Path) -> dict | None:
     """
-    Extract the credential URL from a baked PNG image.
+    Extract the credential from a baked PNG image.
 
     Args:
         png_path: Path to the PNG file
 
     Returns:
-        The credential URL, or None if not found
+        The credential as a dict, or None if not found
     """
     from PIL import Image
 
     img = Image.open(png_path)
 
-    # Check text chunks
-    if hasattr(img, 'text') and 'openbadges' in img.text:
-        return img.text['openbadges']
+    # Check for OB 3.0 format (openbadgecredential)
+    if hasattr(img, 'text') and 'openbadgecredential' in img.text:
+        return json.loads(img.text['openbadgecredential'])
 
-    # Check info dict
+    if 'openbadgecredential' in img.info:
+        return json.loads(img.info['openbadgecredential'])
+
+    # Fallback: Check for legacy OB 2.0 format (openbadges with URL)
+    if hasattr(img, 'text') and 'openbadges' in img.text:
+        return img.text['openbadges']  # Returns URL string for legacy
+
     if 'openbadges' in img.info:
-        return img.info['openbadges']
+        return img.info['openbadges']  # Returns URL string for legacy
 
     return None
 
 
 def svg_to_png(svg_content: str, output_path: Path, width: int = 500,
                linkedin_optimized: bool = True,
-               credential_url: str = None) -> None:
+               credential: dict = None) -> None:
     """
-    Convert SVG content to PNG, optionally baking in a credential URL.
+    Convert SVG content to PNG, optionally baking in a credential.
 
     Args:
         svg_content: The SVG content as a string
@@ -386,8 +396,8 @@ def svg_to_png(svg_content: str, output_path: Path, width: int = 500,
         width: Width of the output PNG in pixels (default 500)
         linkedin_optimized: If True, creates a 1200x627 image with badge centered
                            on transparent background for optimal LinkedIn display (default True)
-        credential_url: If provided, bakes this URL into the PNG metadata as an
-                       OpenBadges credential reference
+        credential: If provided, bakes this credential into the PNG metadata
+                   per OpenBadges 3.0 specification
 
     Raises:
         RuntimeError: If cairosvg is not installed
@@ -443,10 +453,13 @@ def svg_to_png(svg_content: str, output_path: Path, width: int = 500,
         # Paste badge onto background
         background.paste(badge_img, (x_offset, y_offset), badge_img)
 
-        # Bake credential URL if provided
-        if credential_url:
+        # Bake credential if provided (OB 3.0 format)
+        # Use iTXt chunk for UTF-8 support (required by 1EdTech validator)
+        if credential:
+            credential_json = json.dumps(credential, separators=(',', ':'))
             metadata = PngImagePlugin.PngInfo()
-            metadata.add_text("openbadges", credential_url)
+            # add_itxt creates an iTXt chunk which is what the OB3.0 spec requires
+            metadata.add_itxt("openbadgecredential", credential_json)
             background.save(str(output_path), 'PNG', pnginfo=metadata)
         else:
             background.save(str(output_path), 'PNG')
@@ -457,11 +470,13 @@ def svg_to_png(svg_content: str, output_path: Path, width: int = 500,
             output_width=width
         )
 
-        if credential_url:
+        if credential:
             # Load the PNG data and add metadata
+            # Use iTXt chunk for UTF-8 support (required by 1EdTech validator)
+            credential_json = json.dumps(credential, separators=(',', ':'))
             img = Image.open(io.BytesIO(png_data))
             metadata = PngImagePlugin.PngInfo()
-            metadata.add_text("openbadges", credential_url)
+            metadata.add_itxt("openbadgecredential", credential_json)
             img.save(str(output_path), 'PNG', pnginfo=metadata)
         else:
             with open(output_path, 'wb') as f:
@@ -472,11 +487,11 @@ def bake_svg(svg_content: str, credential: dict) -> str:
     """
     Embed a credential into an SVG image.
 
-    The credential is added as a base64-encoded JSON string in an
-    <openbadges:credential> element within the SVG.
+    Per OpenBadges 3.0 specification, the credential is added as raw JSON
+    inside an <openbadges:credential> element within the SVG.
     """
+    # Compact JSON for embedding
     credential_json = json.dumps(credential, separators=(',', ':'))
-    credential_b64 = base64.b64encode(credential_json.encode('utf-8')).decode('ascii')
 
     # Check if SVG already has xmlns:openbadges
     if 'xmlns:openbadges' not in svg_content:
@@ -488,10 +503,11 @@ def bake_svg(svg_content: str, credential: dict) -> str:
             count=1
         )
 
-    # Create the credential element
+    # Create the credential element with raw JSON content
+    # The validator expects raw JSON inside the element, not base64
     credential_element = f'''
-  <openbadges:credential verify="https://credentials.cognipilot.org/verify">
-    {credential_b64}
+  <openbadges:credential>
+{credential_json}
   </openbadges:credential>
 '''
 
@@ -519,17 +535,28 @@ def extract_credential(svg_content: str) -> dict | None:
     Extract a baked credential from an SVG image.
 
     Returns the credential as a dict, or None if no credential is found.
+    Supports both raw JSON format (OB 3.0) and legacy base64 format.
     """
     match = re.search(
-        r'<openbadges:credential[^>]*>\s*([A-Za-z0-9+/=]+)\s*</openbadges:credential>',
-        svg_content
+        r'<openbadges:credential[^>]*>\s*(.*?)\s*</openbadges:credential>',
+        svg_content,
+        re.DOTALL
     )
     if not match:
         return None
 
-    credential_b64 = match.group(1)
-    credential_json = base64.b64decode(credential_b64).decode('utf-8')
-    return json.loads(credential_json)
+    content = match.group(1).strip()
+
+    # Try parsing as raw JSON first (OB 3.0 format)
+    if content.startswith('{'):
+        return json.loads(content)
+
+    # Fallback: try base64 decoding (legacy format)
+    try:
+        credential_json = base64.b64decode(content).decode('utf-8')
+        return json.loads(credential_json)
+    except Exception:
+        return None
 
 
 def main():

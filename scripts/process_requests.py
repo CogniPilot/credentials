@@ -979,20 +979,17 @@ def process_request(request_file: Path, key_path: Path, dry_run: bool = False) -
             # Bake credential into SVG
             baked_svg = bake_svg(svg_with_name, signed_credential)
 
-            # Credential JSON URL for PNG baking
-            credential_json_url = f"{BASE_URL}/profile/{wallet_slug}/{achievement_id}/credential.json"
-
             # Save baked SVG to profile directory
             profile_svg_path = credential_dir / "badge.svg"
             with open(profile_svg_path, 'w') as f:
                 f.write(baked_svg)
             print(f"Saved baked SVG: {profile_svg_path}")
 
-            # Generate PNG with baked credential URL
+            # Generate PNG with baked credential (OB 3.0 format)
             profile_png_path = credential_dir / "badge.png"
             try:
                 svg_to_png(baked_svg, profile_png_path, width=500,
-                          credential_url=credential_json_url)
+                          credential=signed_credential)
                 print(f"Saved baked PNG: {profile_png_path}")
             except RuntimeError as e:
                 print(f"Warning: Could not generate PNG: {e}")
