@@ -13,31 +13,29 @@ jobs:
       issues: write
 
     steps:
-      - name: Check team membership
-        id: check-team
+      - name: Check write permission
+        id: check-permission
         uses: actions/github-script@v7
         with:
           script: |
-            const org = 'CogniPilot';
-            const team_slug = 'credentials';
             const username = context.actor;
 
             try {
-              // For public teams, we can list team members without special permissions
-              const members = await github.rest.teams.listMembersInOrg({
-                org: org,
-                team_slug: team_slug,
-                per_page: 100
+              const { data: permissionLevel } = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: username
               });
 
-              const isMember = members.data.some(member => member.login === username);
+              const permission = permissionLevel.permission;
+              console.log(`${username} has ${permission} permission`);
 
-              if (isMember) {
-                console.log(`${username} is a member of ${org}/${team_slug}`);
+              if (permission === 'admin' || permission === 'write') {
+                console.log(`${username} is authorized to issue badges`);
                 return true;
               }
             } catch (error) {
-              console.log(`Error checking team membership: ${error.message}`);
+              console.log(`Error checking permissions: ${error.message}`);
             }
 
             // Remove the label and comment
@@ -52,7 +50,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `@${username} You do not have permission to issue badges. Only members of the @CogniPilot/credentials team can approve badge requests.`
+              body: `@${username} You do not have permission to issue badges. Only repository collaborators with write access can approve badge requests.`
             });
 
             core.setFailed(`${username} is not authorized to issue badges`);
