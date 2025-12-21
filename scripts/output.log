@@ -2,7 +2,7 @@
 ============================================================
 Processing: cogni-contributor-cognipilot.json
 ============================================================
-Creating new wallet: cogni
+Using existing wallet: cogni
 Saved public credential: /home/runner/work/credentials/credentials/docs/profile/cogni/contributor-cognipilot/credential.json
 Added earner name to badge: Cogni
 Saved baked SVG: /home/runner/work/credentials/credentials/docs/profile/cogni/contributor-cognipilot/badge.svg
