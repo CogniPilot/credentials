@@ -1138,6 +1138,39 @@ def update_wallet_pages(results: list) -> None:
         print(f"  Wallet URL: {BASE_URL}/profile/{wallet_slug}/wallet")
 
 
+def regenerate_all_credential_pages():
+    """Regenerate HTML pages for all existing credentials from their credential.json files."""
+    print("Regenerating all credential pages...")
+
+    # Find all credential.json files
+    credential_files = list(PROFILES_DIR.glob('*/*/credential.json'))
+
+    for cred_file in credential_files:
+        try:
+            with open(cred_file) as f:
+                credential = json.load(f)
+
+            cred_dir = cred_file.parent
+            output_path = cred_dir / 'index.html'
+
+            # Extract wallet_slug from path (profile/<wallet_slug>/<cred_slug>/credential.json)
+            wallet_slug = cred_dir.parent.name
+
+            # Extract badge image URL from credential
+            subject = credential.get('credentialSubject', {})
+            achievement = subject.get('achievement', {})
+            image_info = achievement.get('image', {})
+            badge_image_url = image_info.get('id', '') if isinstance(image_info, dict) else str(image_info)
+
+            generate_credential_page(credential, output_path, badge_image_url, wallet_slug)
+            print(f"Regenerated: {output_path}")
+
+        except Exception as e:
+            print(f"Error regenerating {cred_file}: {e}")
+
+    print(f"\nRegenerated {len(credential_files)} credential page(s)")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Process credential requests and generate badges'
@@ -1163,7 +1196,17 @@ def main():
         action='store_true',
         help='Update wallet pages for all existing profiles'
     )
+    parser.add_argument(
+        '--regenerate-pages',
+        action='store_true',
+        help='Regenerate all credential and wallet HTML pages from existing credential.json files'
+    )
     args = parser.parse_args()
+
+    if args.regenerate_pages:
+        regenerate_all_credential_pages()
+        update_wallet_pages([])
+        return
 
     if args.update_wallets:
         update_wallet_pages([])
