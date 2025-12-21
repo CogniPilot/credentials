@@ -1,4 +1,4 @@
-# CogniPilot Badges
+# CogniPilot Credentials
 
 OpenBadges 3.0 digital credentials for the CogniPilot community.
 
