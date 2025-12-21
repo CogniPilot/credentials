@@ -332,8 +332,8 @@
                                 <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                             </svg>
                             <p>Drag & drop a credential file here</p>
-                            <p class="hint">Supports .json or .svg (baked badge)</p>
-                            <input type="file" id="fileInput" accept=".json,.svg">
+                            <p class="hint">Supports .json, .svg, or .png (baked badges)</p>
+                            <input type="file" id="fileInput" accept=".json,.svg,.png">
                             <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">Choose File</button>
                         </div>
 
@@ -356,7 +356,7 @@
                         About Verification
                     </h3>
                     <p style="color: var(--color-text-secondary); margin-bottom: 16px;">
-                        This page verifies credentials signed with the <code>eddsa-jcs-2022</code> cryptosuite.
+                        This page verifies credentials signed with <code>eddsa-rdfc-2022</code> or <code>eddsa-jcs-2022</code> cryptosuites.
                     </p>
                     <p style="color: var(--color-text-secondary); margin-bottom: 8px;"><strong>Verification checks:</strong></p>
                     <ul>
@@ -399,6 +399,9 @@
             </div>
         </div>
     </footer>
+
+    <!-- jsonld library for RDFC-1.0 canonicalization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsonld/8.3.2/jsonld.min.js"></script>
 
     <script>
         // CogniPilot public key (Ed25519, multibase encoded)
@@ -456,6 +459,20 @@
                 return sorted;
             }
             return JSON.stringify(sortKeys(obj));
+        }
+
+        async function rdfcCanonicalize(obj) {
+            // RDFC-1.0 canonicalization using jsonld library
+            try {
+                const canonized = await jsonld.canonize(obj, {
+                    algorithm: 'URDNA2015',
+                    format: 'application/n-quads'
+                });
+                return canonized;
+            } catch (e) {
+                console.error('RDFC canonicalization error:', e);
+                throw new Error('Failed to canonicalize credential: ' + e.message);
+            }
         }
 
         async function sha256(data) {
@@ -518,7 +535,7 @@
                 return result;
             }
 
-            if (proof.cryptosuite !== 'eddsa-jcs-2022') {
+            if (proof.cryptosuite !== 'eddsa-jcs-2022' && proof.cryptosuite !== 'eddsa-rdfc-2022') {
                 result.errors.push(`Unsupported cryptosuite: ${proof.cryptosuite}`);
                 return result;
             }
@@ -543,16 +560,6 @@
                 return result;
             }
 
-            // Recreate proof config (matches Python signing - excludes @context)
-            // The @context is added to the proof AFTER signing, so it must not be included here
-            const proofConfig = {
-                type: proof.type,
-                cryptosuite: proof.cryptosuite,
-                verificationMethod: proof.verificationMethod,
-                created: proof.created,
-                proofPurpose: proof.proofPurpose
-            };
-
             // Get credential without proof
             const credentialCopy = {};
             for (const key of Object.keys(credential)) {
@@ -561,12 +568,47 @@
                 }
             }
 
-            // Canonicalize and hash
-            const canonicalProof = jcsCanonicalize(proofConfig);
-            const canonicalCredential = jcsCanonicalize(credentialCopy);
+            let proofHash, credentialHash;
 
-            const proofHash = await sha256(canonicalProof);
-            const credentialHash = await sha256(canonicalCredential);
+            if (proof.cryptosuite === 'eddsa-rdfc-2022') {
+                // RDFC-1.0 canonicalization for eddsa-rdfc-2022
+                // Proof options for RDFC include @context
+                const proofOptions = {
+                    '@context': credential['@context'],
+                    type: proof.type,
+                    cryptosuite: proof.cryptosuite,
+                    verificationMethod: proof.verificationMethod,
+                    created: proof.created,
+                    proofPurpose: proof.proofPurpose
+                };
+
+                try {
+                    const canonicalProof = await rdfcCanonicalize(proofOptions);
+                    const canonicalCredential = await rdfcCanonicalize(credentialCopy);
+
+                    proofHash = await sha256(canonicalProof);
+                    credentialHash = await sha256(canonicalCredential);
+                } catch (e) {
+                    result.errors.push(`Canonicalization failed: ${e.message}`);
+                    return result;
+                }
+            } else {
+                // JCS canonicalization for eddsa-jcs-2022
+                // Proof config excludes @context for JCS
+                const proofConfig = {
+                    type: proof.type,
+                    cryptosuite: proof.cryptosuite,
+                    verificationMethod: proof.verificationMethod,
+                    created: proof.created,
+                    proofPurpose: proof.proofPurpose
+                };
+
+                const canonicalProof = jcsCanonicalize(proofConfig);
+                const canonicalCredential = jcsCanonicalize(credentialCopy);
+
+                proofHash = await sha256(canonicalProof);
+                credentialHash = await sha256(canonicalCredential);
+            }
 
             // Combine hashes
             const combined = new Uint8Array(proofHash.length + credentialHash.length);
@@ -608,13 +650,84 @@
         }
 
         function extractCredentialFromSVG(svgContent) {
-            const match = svgContent.match(/<openbadges:credential[^>]*>\s*([A-Za-z0-9+/=]+)\s*<\/openbadges:credential>/);
+            const match = svgContent.match(/<openbadges:credential[^>]*>\s*([\s\S]*?)\s*<\/openbadges:credential>/);
             if (!match) {
                 throw new Error('No embedded credential found in SVG');
             }
-            const base64 = match[1];
-            const json = atob(base64);
+            const content = match[1].trim();
+
+            // Check if it's raw JSON (OB 3.0 format) or base64 (legacy)
+            if (content.startsWith('{')) {
+                return JSON.parse(content);
+            }
+
+            // Legacy base64 format
+            const json = atob(content);
             return JSON.parse(json);
+        }
+
+        async function extractCredentialFromPNG(file) {
+            // Read PNG file and extract iTXt/tEXt chunk with openbadgecredential
+            const arrayBuffer = await file.arrayBuffer();
+            const dataView = new DataView(arrayBuffer);
+
+            // Verify PNG signature
+            const signature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+            for (let i = 0; i < 8; i++) {
+                if (dataView.getUint8(i) !== signature[i]) {
+                    throw new Error('Invalid PNG file');
+                }
+            }
+
+            let offset = 8;
+            const decoder = new TextDecoder('utf-8');
+
+            while (offset < arrayBuffer.byteLength) {
+                const length = dataView.getUint32(offset);
+                const chunkType = decoder.decode(new Uint8Array(arrayBuffer, offset + 4, 4));
+
+                if (chunkType === 'iTXt') {
+                    // iTXt chunk: keyword\0compression\0method\0lang\0translated\0text
+                    const chunkData = new Uint8Array(arrayBuffer, offset + 8, length);
+                    let nullCount = 0;
+                    let keywordEnd = 0;
+                    let textStart = 0;
+
+                    for (let i = 0; i < chunkData.length; i++) {
+                        if (chunkData[i] === 0) {
+                            nullCount++;
+                            if (nullCount === 1) keywordEnd = i;
+                            if (nullCount === 5) {
+                                textStart = i + 1;
+                                break;
+                            }
+                        }
+                    }
+
+                    const keyword = decoder.decode(chunkData.slice(0, keywordEnd));
+                    if (keyword === 'openbadgecredential') {
+                        const text = decoder.decode(chunkData.slice(textStart));
+                        return JSON.parse(text);
+                    }
+                } else if (chunkType === 'tEXt') {
+                    // tEXt chunk: keyword\0text
+                    const chunkData = new Uint8Array(arrayBuffer, offset + 8, length);
+                    const nullIndex = chunkData.indexOf(0);
+                    const keyword = decoder.decode(chunkData.slice(0, nullIndex));
+
+                    if (keyword === 'openbadgecredential') {
+                        const text = decoder.decode(chunkData.slice(nullIndex + 1));
+                        return JSON.parse(text);
+                    }
+                } else if (chunkType === 'IEND') {
+                    break;
+                }
+
+                // Move to next chunk (length + type + data + CRC)
+                offset += 12 + length;
+            }
+
+            throw new Error('No embedded credential found in PNG');
         }
 
         function getExpirationStatus(validUntil) {
@@ -752,16 +865,20 @@
         }
 
         async function processFile(file) {
+            document.getElementById('result-section').style.display = 'block';
             document.getElementById('loading').style.display = 'block';
             document.getElementById('result').innerHTML = '';
 
             try {
-                const content = await file.text();
                 let credential;
 
-                if (file.name.endsWith('.svg')) {
+                if (file.name.endsWith('.png')) {
+                    credential = await extractCredentialFromPNG(file);
+                } else if (file.name.endsWith('.svg')) {
+                    const content = await file.text();
                     credential = extractCredentialFromSVG(content);
                 } else {
+                    const content = await file.text();
                     credential = JSON.parse(content);
                 }
 
@@ -783,6 +900,7 @@
                 return;
             }
 
+            document.getElementById('result-section').style.display = 'block';
             document.getElementById('loading').style.display = 'block';
             document.getElementById('result').innerHTML = '';
 
