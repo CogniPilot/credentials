@@ -93,7 +93,14 @@ jobs:
             const recipientName = parseField(issueBody, 'Recipient Name');
             const recipientEmail = parseField(issueBody, 'Recipient Email');
             const badgeType = parseField(issueBody, 'Badge Type');
-            const validFrom = parseField(issueBody, 'Valid From Date \\(Optional\\)');
+            let validFrom = parseField(issueBody, 'Valid From Date \\(Optional\\)');
+
+            // Validate date format (YYYY-MM-DD) or default to today
+            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            if (!validFrom || !dateRegex.test(validFrom) || isNaN(Date.parse(validFrom))) {
+              validFrom = new Date().toISOString().split('T')[0];
+              console.log(`Using current date: ${validFrom}`);
+            }
 
             // Extract achievement ID from badge type (format: "Name (id)")
             const achievementMatch = badgeType.match(/\(([^)]+)\)$/);
@@ -138,17 +145,11 @@ jobs:
             "recipient_name": "${{ steps.parse-issue.outputs.recipient_name }}",
             "recipient_email": "${{ steps.parse-issue.outputs.recipient_email }}",
             "achievement": "${{ steps.parse-issue.outputs.achievement_id }}",
-            "valid_from": "${{ steps.parse-issue.outputs.valid_from || '' }}",
+            "valid_from": "${{ steps.parse-issue.outputs.valid_from }}",
             "status": "pending",
             "github_issue": ${{ steps.parse-issue.outputs.issue_number }}
           }
           EOF
-
-          # Fix empty valid_from
-          if [ -z "${{ steps.parse-issue.outputs.valid_from }}" ]; then
-            jq 'del(.valid_from)' "requests/${{ steps.parse-issue.outputs.request_filename }}" > tmp.json
-            mv tmp.json "requests/${{ steps.parse-issue.outputs.request_filename }}"
-          fi
 
           cat "requests/${{ steps.parse-issue.outputs.request_filename }}"
 
