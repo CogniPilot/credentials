@@ -2,13 +2,12 @@
   "recipient_name": "Benjamin Perseghetti",
   "recipient_email": "bperseghetti@cognipilot.org",
   "achievement": "tsc-member-2026",
-  "valid_from": "2026-01-01T00:00:00Z",
+  "valid_from": "2025-12-19T00:00:00Z",
   "valid_until": "2026-12-31T23:59:59Z",
   "status": "issued",
-  "processed_at": "2025-12-21T02:20:19Z",
-  "output_dir": "output/benjamin-perseghetti-tsc-member-2026",
+  "processed_at": "2025-12-21T06:34:00Z",
   "wallet_slug": "benjamin-perseghetti",
   "credential_url": "https://credentials.cognipilot.org/profile/benjamin-perseghetti/tsc-member-2026",
   "wallet_url": "https://credentials.cognipilot.org/profile/benjamin-perseghetti/wallet",
-  "linkedin_url": "https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=CogniPilot+TSC+Member+2026&organizationName=CogniPilot+Foundation&issueYear=2026&issueMonth=01&expirationYear=2026&expirationMonth=12&certUrl=https%3A%2F%2Fcredentials.cognipilot.org%2Fprofile%2Fbenjamin-perseghetti%2Ftsc-member-2026&certId=tsc-member-2026"
+  "linkedin_url": "https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=CogniPilot+TSC+Member+2026&organizationName=CogniPilot+Foundation&issueYear=2025&issueMonth=12&expirationYear=2026&expirationMonth=12&certUrl=https%3A%2F%2Fcredentials.cognipilot.org%2Fprofile%2Fbenjamin-perseghetti%2Ftsc-member-2026&certId=tsc-member-2026"
 }
