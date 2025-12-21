@@ -1,0 +1,26 @@
+
+============================================================
+Processing: cogni-contributor-cognipilot.json
+============================================================
+Creating new wallet: cogni
+Saved public credential: /home/runner/work/credentials/credentials/docs/profile/cogni/contributor-cognipilot/credential.json
+Added earner name to badge: Cogni
+Saved baked SVG: /home/runner/work/credentials/credentials/docs/profile/cogni/contributor-cognipilot/badge.svg
+Saved baked PNG: /home/runner/work/credentials/credentials/docs/profile/cogni/contributor-cognipilot/badge.png
+Saved credential page: /home/runner/work/credentials/credentials/docs/profile/cogni/contributor-cognipilot/index.html
+
+Credential URL: https://credentials.cognipilot.org/profile/cogni/contributor-cognipilot
+Wallet URL: https://credentials.cognipilot.org/profile/cogni/wallet
+LinkedIn share URL:
+https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=CogniPilot+Contributor&organizationName=CogniPilot+Foundation&issueYear=_No+&issueMonth=es&certUrl=https%3A%2F%2Fcredentials.cognipilot.org%2Fprofile%2Fcogni%2Fcontributor-cognipilot&certId=contributor-cognipilot
+
+
+============================================================
+Updating wallet pages...
+============================================================
+Updated wallet page: /home/runner/work/credentials/credentials/docs/profile/cogni/wallet/index.html
+  Wallet URL: https://credentials.cognipilot.org/profile/cogni/wallet
+
+============================================================
+Processed 1 credential(s)
+============================================================
