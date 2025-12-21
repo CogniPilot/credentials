@@ -1,0 +1,218 @@
+name: Issue Badge from Request
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  issue-badge:
+    if: github.event.label.name == 'issue-badge'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Check team membership
+        id: check-team
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const org = 'CogniPilot';
+            const team_slug = 'credentials';
+            const username = context.actor;
+
+            try {
+              // For public teams, we can list team members without special permissions
+              const members = await github.rest.teams.listMembersInOrg({
+                org: org,
+                team_slug: team_slug,
+                per_page: 100
+              });
+
+              const isMember = members.data.some(member => member.login === username);
+
+              if (isMember) {
+                console.log(`${username} is a member of ${org}/${team_slug}`);
+                return true;
+              }
+            } catch (error) {
+              console.log(`Error checking team membership: ${error.message}`);
+            }
+
+            // Remove the label and comment
+            await github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: 'issue-badge'
+            });
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `@${username} You do not have permission to issue badges. Only members of the @CogniPilot/credentials team can approve badge requests.`
+            });
+
+            core.setFailed(`${username} is not authorized to issue badges`);
+            return false;
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pynacl rfc3339-validator pyld cairosvg pillow
+
+      - name: Parse issue and create request
+        id: parse-issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueBody = context.payload.issue.body;
+            const issueAuthor = context.payload.issue.user.login;
+            const issueNumber = context.payload.issue.number;
+
+            // Parse the issue form fields
+            const parseField = (body, fieldName) => {
+              const regex = new RegExp(`### ${fieldName}\\s*\\n\\s*([^\\n#]+)`, 'i');
+              const match = body.match(regex);
+              return match ? match[1].trim() : '';
+            };
+
+            const recipientName = parseField(issueBody, 'Recipient Name');
+            const recipientEmail = parseField(issueBody, 'Recipient Email');
+            const badgeType = parseField(issueBody, 'Badge Type');
+            const validFrom = parseField(issueBody, 'Valid From Date \\(Optional\\)');
+
+            // Extract achievement ID from badge type (format: "Name (id)")
+            const achievementMatch = badgeType.match(/\(([^)]+)\)$/);
+            const achievementId = achievementMatch ? achievementMatch[1] : '';
+
+            if (!recipientName || !recipientEmail || !achievementId) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: `Failed to parse issue form. Please ensure all required fields are filled out.\n\nParsed values:\n- Recipient Name: ${recipientName || '(missing)'}\n- Recipient Email: ${recipientEmail || '(missing)'}\n- Badge Type: ${badgeType || '(missing)'}\n- Achievement ID: ${achievementId || '(missing)'}`
+              });
+              core.setFailed('Failed to parse required fields from issue');
+              return;
+            }
+
+            // Create slug from name
+            const slug = recipientName.toLowerCase()
+              .replace(/[\s_]+/g, '-')
+              .replace(/[^a-z0-9-]/g, '')
+              .replace(/-+/g, '-')
+              .replace(/^-|-$/g, '');
+
+            const requestFilename = `${slug}-${achievementId}.json`;
+
+            core.setOutput('recipient_name', recipientName);
+            core.setOutput('recipient_email', recipientEmail);
+            core.setOutput('achievement_id', achievementId);
+            core.setOutput('valid_from', validFrom);
+            core.setOutput('request_filename', requestFilename);
+            core.setOutput('issue_author', issueAuthor);
+            core.setOutput('issue_number', issueNumber);
+
+            console.log(`Creating request: ${requestFilename}`);
+            console.log(`Recipient: ${recipientName} <${recipientEmail}>`);
+            console.log(`Achievement: ${achievementId}`);
+
+      - name: Create request JSON
+        run: |
+          cat > "requests/${{ steps.parse-issue.outputs.request_filename }}" << 'EOF'
+          {
+            "recipient_name": "${{ steps.parse-issue.outputs.recipient_name }}",
+            "recipient_email": "${{ steps.parse-issue.outputs.recipient_email }}",
+            "achievement": "${{ steps.parse-issue.outputs.achievement_id }}",
+            "valid_from": "${{ steps.parse-issue.outputs.valid_from || '' }}",
+            "status": "pending",
+            "github_issue": ${{ steps.parse-issue.outputs.issue_number }}
+          }
+          EOF
+
+          # Fix empty valid_from
+          if [ -z "${{ steps.parse-issue.outputs.valid_from }}" ]; then
+            jq 'del(.valid_from)' "requests/${{ steps.parse-issue.outputs.request_filename }}" > tmp.json
+            mv tmp.json "requests/${{ steps.parse-issue.outputs.request_filename }}"
+          fi
+
+          cat "requests/${{ steps.parse-issue.outputs.request_filename }}"
+
+      - name: Process credential request
+        id: process
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+        run: |
+          # Write signing key to file
+          echo "$SIGNING_KEY" > keys/key-1-private.json
+
+          cd scripts
+          python process_requests.py --request "../requests/${{ steps.parse-issue.outputs.request_filename }}" | tee output.log
+
+          # Extract credential URL from output
+          CREDENTIAL_URL=$(grep "Credential URL:" output.log | sed 's/Credential URL: //')
+          WALLET_URL=$(grep "Wallet URL:" output.log | sed 's/Wallet URL: //')
+          LINKEDIN_URL=$(grep -A1 "LinkedIn share URL:" output.log | tail -1)
+
+          echo "credential_url=$CREDENTIAL_URL" >> $GITHUB_OUTPUT
+          echo "wallet_url=$WALLET_URL" >> $GITHUB_OUTPUT
+          echo "linkedin_url=$LINKEDIN_URL" >> $GITHUB_OUTPUT
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          git commit -m "Issue badge: ${{ steps.parse-issue.outputs.recipient_name }} - ${{ steps.parse-issue.outputs.achievement_id }}
+
+          Requested in #${{ steps.parse-issue.outputs.issue_number }}"
+
+          git push
+
+      - name: Comment on issue and close
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = ${{ steps.parse-issue.outputs.issue_number }};
+            const issueAuthor = '${{ steps.parse-issue.outputs.issue_author }}';
+            const recipientName = '${{ steps.parse-issue.outputs.recipient_name }}';
+            const credentialUrl = '${{ steps.process.outputs.credential_url }}';
+            const walletUrl = '${{ steps.process.outputs.wallet_url }}';
+            const linkedinUrl = '${{ steps.process.outputs.linkedin_url }}';
+
+            const comment = `@${issueAuthor} The badge has been issued successfully!
+
+            **Credential Details:**
+            - **Recipient:** ${recipientName}
+            - **Credential Page:** ${credentialUrl}
+            - **Wallet:** ${walletUrl}
+
+            **Share on LinkedIn:**
+            [Add to LinkedIn Profile](${linkedinUrl})
+
+            The credential page will be live shortly after the site deploys.`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: comment
+            });
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              state: 'closed'
+            });
