@@ -1,11 +1,15 @@
 name: Update Issue Template
 
 on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
   push:
     paths:
       - 'achievements/*.json'
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   update-template:
@@ -22,10 +26,9 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Generate issue template
+      - name: Update badge template
         run: |
-          cd scripts
-          python generate_issue_template.py
+          python scripts/update_badge_template.py
 
       - name: Check for changes
         id: check-changes
@@ -43,5 +46,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add .github/ISSUE_TEMPLATE/badge-request.yml
-          git commit -m "Update badge request issue template"
+          git commit -m "Update badge request template for current year"
           git push
