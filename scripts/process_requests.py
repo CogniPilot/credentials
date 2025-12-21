@@ -281,6 +281,9 @@ def generate_wallet_page(
         achievement = subject.get('achievement', {})
         achievement_name = achievement.get('name', 'Achievement')
         achievement_type = achievement.get('achievementType', '')
+        # Strip namespace prefix for display (e.g., "ext:Role" -> "Role")
+        if ':' in achievement_type:
+            achievement_type = achievement_type.split(':')[-1]
 
         image_info = achievement.get('image', {})
         image_url = image_info.get('id', '') if isinstance(image_info, dict) else str(image_info)
@@ -476,6 +479,9 @@ def generate_credential_page(
     name = achievement.get('name') or credential.get('name', 'Achievement')
     description = achievement.get('description', '')
     achievement_type = achievement.get('achievementType', '')
+    # Strip namespace prefix for display (e.g., "ext:Role" -> "Role")
+    if ':' in achievement_type:
+        achievement_type = achievement_type.split(':')[-1]
 
     valid_from = credential.get('validFrom', '')
     valid_until = credential.get('validUntil', '')
