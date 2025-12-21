@@ -4,6 +4,7 @@ Update the badge-request issue template with current/upcoming year badges.
 
 Filters year-based badges to only show:
 - Badges for the current year
+- Badges for previous year if within 30 days of year start
 - Badges for next year if within 30 days of year end
 
 Non-year badges (maintainer, contributor, collaborator) are always shown.
@@ -25,6 +26,11 @@ def get_relevant_years() -> set:
     """Get the set of years that should be shown in the template."""
     today = datetime.now()
     years = {today.year}
+
+    # If within 30 days of year start, also include previous year
+    year_start = datetime(today.year, 1, 1)
+    if (today - year_start).days <= 30:
+        years.add(today.year - 1)
 
     # If within 30 days of year end, also include next year
     year_end = datetime(today.year, 12, 31)
