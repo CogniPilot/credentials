@@ -3,5 +3,10 @@
   "recipient_email": "bperseghetti@cognipilot.org",
   "achievement": "maintainer-cognipilot",
   "valid_from": "2024-01-01T00:00:00Z",
-  "status": "pending"
+  "status": "issued",
+  "processed_at": "2025-12-21T06:01:18Z",
+  "wallet_slug": "benjamin-perseghetti",
+  "credential_url": "https://credentials.cognipilot.org/profile/benjamin-perseghetti/maintainer-cognipilot",
+  "wallet_url": "https://credentials.cognipilot.org/profile/benjamin-perseghetti/wallet",
+  "linkedin_url": "https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=CogniPilot+Maintainer&organizationName=CogniPilot+Foundation&issueYear=2024&issueMonth=01&certUrl=https%3A%2F%2Fcredentials.cognipilot.org%2Fprofile%2Fbenjamin-perseghetti%2Fmaintainer-cognipilot&certId=maintainer-cognipilot"
 }
