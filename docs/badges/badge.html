@@ -333,7 +333,7 @@
                 document.getElementById('badge-description').textContent = badge.description;
 
                 if (badge.achievementType) {
-                    document.getElementById('badge-type').textContent = badge.achievementType;
+                    document.getElementById('badge-type').textContent = badge.achievementType.replace(/^.*:/, '');
                 }
 
                 if (badge.criteria?.narrative) {

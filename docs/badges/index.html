@@ -121,7 +121,7 @@
                         badges.push(badge);
 
                         if (badge.achievementType) {
-                            types.add(badge.achievementType);
+                            types.add(badge.achievementType.replace(/^.*:/, ''));
                         }
                     }
                 } catch (e) {
@@ -134,7 +134,7 @@
                 const chip = document.createElement('button');
                 chip.className = 'filter-chip';
                 chip.dataset.filter = type;
-                chip.textContent = type;
+                chip.textContent = type.replace(/^.*:/, '');
                 chip.addEventListener('click', () => filterBadges(type));
                 filterBar.appendChild(chip);
             });
@@ -170,7 +170,7 @@
             if (type === 'all') {
                 renderBadges(badges);
             } else {
-                const filtered = badges.filter(b => b.achievementType === type);
+                const filtered = badges.filter(b => (b.achievementType || '').replace(/^.*:/, '') === type);
                 renderBadges(filtered);
             }
         }
@@ -189,7 +189,7 @@
                 <div class="badge-info">
                     <h3>${badge.name}</h3>
                     <p>${badge.description}</p>
-                    <span class="badge-type">${badge.achievementType || 'Achievement'}</span>
+                    <span class="badge-type">${(badge.achievementType || 'Achievement').replace(/^.*:/, '')}</span>
                 </div>
             `;
 

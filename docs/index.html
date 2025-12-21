@@ -182,7 +182,7 @@
                 <div class="badge-info">
                     <h3>${badge.name}</h3>
                     <p>${badge.description}</p>
-                    <span class="badge-type">${badge.achievementType || 'Achievement'}</span>
+                    <span class="badge-type">${(badge.achievementType || 'Achievement').replace(/^.*:/, '')}</span>
                 </div>
             `;
 
