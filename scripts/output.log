@@ -1,25 +1,25 @@
 
 ============================================================
-Processing: james-goppert-board-of-directors-2026.json
+Processing: peter-van-der-perk-maintainer-cognipilot.json
 ============================================================
-Creating new wallet: james-goppert
-Saved public credential: /home/runner/work/credentials/credentials/docs/profile/james-goppert/board-of-directors-2026/credential.json
-Added earner name to badge: James Goppert
-Saved baked SVG: /home/runner/work/credentials/credentials/docs/profile/james-goppert/board-of-directors-2026/badge.svg
-Saved baked PNG: /home/runner/work/credentials/credentials/docs/profile/james-goppert/board-of-directors-2026/badge.png
-Saved credential page: /home/runner/work/credentials/credentials/docs/profile/james-goppert/board-of-directors-2026/index.html
+Creating new wallet: peter-van-der-perk
+Saved public credential: /home/runner/work/credentials/credentials/docs/profile/peter-van-der-perk/maintainer-cognipilot/credential.json
+Added earner name to badge: Peter van der Perk
+Saved baked SVG: /home/runner/work/credentials/credentials/docs/profile/peter-van-der-perk/maintainer-cognipilot/badge.svg
+Saved baked PNG: /home/runner/work/credentials/credentials/docs/profile/peter-van-der-perk/maintainer-cognipilot/badge.png
+Saved credential page: /home/runner/work/credentials/credentials/docs/profile/peter-van-der-perk/maintainer-cognipilot/index.html
 
-Credential URL: https://credentials.cognipilot.org/profile/james-goppert/board-of-directors-2026
-Wallet URL: https://credentials.cognipilot.org/profile/james-goppert/wallet
+Credential URL: https://credentials.cognipilot.org/profile/peter-van-der-perk/maintainer-cognipilot
+Wallet URL: https://credentials.cognipilot.org/profile/peter-van-der-perk/wallet
 LinkedIn share URL:
-https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=CogniPilot+Board+of+Directors+2026&organizationName=CogniPilot+Foundation&issueYear=2025&issueMonth=12&certUrl=https%3A%2F%2Fcredentials.cognipilot.org%2Fprofile%2Fjames-goppert%2Fboard-of-directors-2026&certId=board-of-directors-2026
+https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=CogniPilot+Maintainer&organizationName=CogniPilot+Foundation&issueYear=2025&issueMonth=12&certUrl=https%3A%2F%2Fcredentials.cognipilot.org%2Fprofile%2Fpeter-van-der-perk%2Fmaintainer-cognipilot&certId=maintainer-cognipilot
 
 
 ============================================================
 Updating wallet pages...
 ============================================================
-Updated wallet page: /home/runner/work/credentials/credentials/docs/profile/james-goppert/wallet/index.html
-  Wallet URL: https://credentials.cognipilot.org/profile/james-goppert/wallet
+Updated wallet page: /home/runner/work/credentials/credentials/docs/profile/peter-van-der-perk/wallet/index.html
+  Wallet URL: https://credentials.cognipilot.org/profile/peter-van-der-perk/wallet
 
 ============================================================
 Processed 1 credential(s)
