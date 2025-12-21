@@ -439,6 +439,13 @@ code {
     font-size: 0.9375rem;
 }
 
+/* CTA Grid */
+.cta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
 /* CTA Card */
 .cta-card {
     background: var(--color-bg-card);
