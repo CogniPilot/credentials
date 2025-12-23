@@ -34,8 +34,8 @@ OpenBadges 3.0 digital credentials for the CogniPilot community.
 
 Generated files are saved to `docs/profile/<wallet-slug>/<achievement-id>/`:
 - `credential.json` - Signed verifiable credential
-- `badge.svg` - Baked SVG badge with earner name
-- `badge.png` - PNG badge with embedded credential URL
+- `badge.svg` - Baked SVG badge with earner name and embedded credential
+- `badge.png` - PNG badge with embedded credential metadata
 - `index.html` - Credential page for sharing
 
 ## Updating Credentials
