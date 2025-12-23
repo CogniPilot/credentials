@@ -144,3 +144,18 @@ Set `remove_profile` to `true` to remove your entire wallet and all credentials.
 ## Verification
 
 Verify credentials at: https://credentials.cognipilot.org/verify
+
+The verifier supports:
+- **JSON credentials** - Upload or paste a `credential.json` file
+- **SVG badges** - Upload an SVG badge with embedded credential
+- **PNG badges** - Upload a PNG badge with embedded credential metadata
+
+### Example Credentials
+
+An [example wallet](https://credentials.cognipilot.org/profile/examples/wallet) is available to demonstrate credential states:
+
+- **Expired** - [Rumoca Maintainer](https://credentials.cognipilot.org/profile/examples/maintainer-rumoca) (expired 2024-12-31)
+- **Expiring Soon** - [CogniPilot Collaborator](https://credentials.cognipilot.org/profile/examples/collaborator-cognipilot) (expires within 30 days)
+- **Valid** - [CogniPilot Contributor](https://credentials.cognipilot.org/profile/examples/contributor-cognipilot) (no expiration)
+
+Use these to test verification behavior for different credential states.
