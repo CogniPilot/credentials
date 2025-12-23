@@ -25,8 +25,10 @@ Wallet identification:
 
 import argparse
 import json
+import random
 import re
 import shutil
+import string
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -69,6 +71,17 @@ def name_to_slug(name: str) -> str:
     # Remove leading/trailing hyphens
     slug = slug.strip('-')
     return slug
+
+
+def generate_anonymous_slug(length: int = 12) -> str:
+    """
+    Generate a random alphanumeric slug for anonymous wallets.
+
+    Returns a lowercase alphanumeric string of the specified length.
+    Example: "a7b2c9d4e1f8"
+    """
+    chars = string.ascii_lowercase + string.digits
+    return ''.join(random.choice(chars) for _ in range(length))
 
 
 def load_wallet_registry() -> dict:
@@ -1028,11 +1041,27 @@ def process_request(request_file: Path, key_path: Path, dry_run: bool = False) -
 
     # Determine wallet slug
     existing_slug = get_wallet_slug_for_email(normalized_email, registry)
+    requested_slug = request.get('wallet_slug')
+    anonymize_slug = request.get('anonymize_slug', False)
 
     if existing_slug:
         # Use existing wallet
         wallet_slug = existing_slug
         print(f"Using existing wallet: {wallet_slug}")
+    elif anonymize_slug:
+        # Generate anonymous random slug
+        wallet_slug = generate_anonymous_slug()
+        # Ensure unique slug
+        while wallet_slug in registry["wallets"]:
+            wallet_slug = generate_anonymous_slug()
+        print(f"Creating anonymous wallet: {wallet_slug}")
+    elif requested_slug:
+        # Use explicitly requested slug
+        wallet_slug = name_to_slug(requested_slug)
+        if wallet_slug in registry["wallets"]:
+            print(f"Error: Wallet slug '{wallet_slug}' already exists")
+            return None
+        print(f"Creating wallet with requested slug: {wallet_slug}")
     else:
         # Create new wallet from recipient name
         wallet_slug = name_to_slug(recipient_name)

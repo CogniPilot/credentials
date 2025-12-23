@@ -1,0 +1,13 @@
+{
+  "recipient_name": "Example User",
+  "recipient_email": "examples@cognipilot.org",
+  "achievement": "maintainer-rumoca",
+  "valid_from": "2024-01-01T00:00:00Z",
+  "valid_until": "2024-12-31T23:59:59Z",
+  "wallet_slug": "examples",
+  "status": "issued",
+  "processed_at": "2025-12-23T06:27:50Z",
+  "credential_url": "https://credentials.cognipilot.org/profile/examples/maintainer-rumoca",
+  "wallet_url": "https://credentials.cognipilot.org/profile/examples/wallet",
+  "linkedin_url": "https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=Rumoca+Maintainer&organizationName=CogniPilot+Foundation&issueYear=2024&issueMonth=01&expirationYear=2024&expirationMonth=12&certUrl=https%3A%2F%2Fcredentials.cognipilot.org%2Fprofile%2Fexamples%2Fmaintainer-rumoca&certId=maintainer-rumoca"
+}

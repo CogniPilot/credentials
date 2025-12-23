@@ -1,10 +1,13 @@
 {
   "_comment": "Template for credential requests. Copy and rename to create a new request.",
   "_note": "Wallet slug is created from recipient_name on first credential. Same email = same wallet.",
+  "_wallet_options": "Use 'wallet_slug' for custom slug, or 'anonymize_slug': true for random alphanumeric.",
 
   "recipient_name": "First Last",
   "recipient_email": "email@example.com",
   "achievement": "achievement-id",
   "valid_from": "2026-01-01T00:00:00Z",
-  "valid_until": "2026-12-31T23:59:59Z"
+  "valid_until": "2026-12-31T23:59:59Z",
+  "wallet_slug": null,
+  "anonymize_slug": false
 }

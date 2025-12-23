@@ -1,0 +1,12 @@
+{
+  "recipient_name": "Example User",
+  "recipient_email": "examples@cognipilot.org",
+  "achievement": "contributor-cognipilot",
+  "valid_from": "2025-01-01T00:00:00Z",
+  "wallet_slug": "examples",
+  "status": "issued",
+  "processed_at": "2025-12-23T06:27:57Z",
+  "credential_url": "https://credentials.cognipilot.org/profile/examples/contributor-cognipilot",
+  "wallet_url": "https://credentials.cognipilot.org/profile/examples/wallet",
+  "linkedin_url": "https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=CogniPilot+Contributor&organizationName=CogniPilot+Foundation&issueYear=2025&issueMonth=01&certUrl=https%3A%2F%2Fcredentials.cognipilot.org%2Fprofile%2Fexamples%2Fcontributor-cognipilot&certId=contributor-cognipilot"
+}

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rumoca Maintainer - Example User | CogniPilot</title>
+    <meta property="og:title" content="Rumoca Maintainer">
+    <meta property="og:description" content="Example User earned Rumoca Maintainer from CogniPilot Foundation">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://credentials.cognipilot.org/profile/examples/maintainer-rumoca/badge.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="627">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .credential-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+        .credential-card {
+            background: var(--color-bg-card);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--color-border);
+        }
+        .badge-section {
+            background: linear-gradient(135deg, var(--color-bg-darker) 0%, var(--color-bg-card) 100%);
+            padding: 48px;
+            text-align: center;
+        }
+        .badge-image img {
+            max-width: 400px;
+            height: auto;
+        }
+        .credential-details {
+            padding: 32px;
+        }
+        .verified-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(76, 175, 80, 0.15);
+            color: #4CAF50;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        .verified-status svg {
+            width: 18px;
+            height: 18px;
+        }
+        .credential-title {
+            font-size: 1.75rem;
+            margin-bottom: 8px;
+        }
+        .credential-recipient {
+            color: var(--color-primary);
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+        }
+        .credential-issuer {
+            color: var(--color-text-secondary);
+            font-size: 0.9375rem;
+            margin-bottom: 20px;
+        }
+        .credential-issuer a {
+            color: var(--color-primary);
+        }
+        .credential-description {
+            color: var(--color-text-secondary);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+        .credential-meta {
+            border-top: 1px solid var(--color-border);
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.875rem;
+        }
+        .meta-label {
+            color: var(--color-text-muted);
+        }
+        .meta-value {
+            color: var(--color-text);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+        .btn-linkedin {
+            background: #0077B5;
+            color: white;
+        }
+        .btn-linkedin:hover {
+            background: #005885;
+            color: white;
+        }
+        .linkedin-help {
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+        .linkedin-help a {
+            color: var(--color-text-muted);
+            text-decoration: none;
+        }
+        .linkedin-help a:hover {
+            color: var(--color-primary);
+            text-decoration: underline;
+        }
+        .download-section {
+            border-top: 1px solid var(--color-border);
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+        .download-section h3 {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        .download-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn-download {
+            background: var(--color-bg-darker);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+            padding: 8px 16px;
+            font-size: 0.875rem;
+        }
+        .btn-download:hover {
+            background: var(--color-bg-card);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+        .btn-download svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-text-secondary);
+            margin-bottom: 24px;
+            font-size: 0.875rem;
+        }
+        .back-link:hover {
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="nav-brand">
+                <img src="/images/cognipilot-logo.png" alt="CogniPilot" class="nav-logo">
+                <span>Credentials</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/issuer" class="nav-link">Issuer</a>
+                <a href="/verify" class="nav-link">Verify</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="credential-container">
+        <a href="/profile/examples/wallet" class="back-link">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to wallet
+        </a>
+
+        <div class="credential-card">
+            <div class="badge-section">
+                <div class="badge-image"><img src="badge.svg" alt="Rumoca Maintainer"></div>
+            </div>
+            <div class="credential-details">
+                <div class="verified-status">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    Verified Credential
+                </div>
+
+                <h1 class="credential-title">Rumoca Maintainer</h1>
+                <div class="credential-recipient">Awarded to Example User</div>
+                <div class="credential-issuer">Issued by <a href="https://cognipilot.org" target="_blank">CogniPilot Foundation</a></div>
+                <div class="credential-description">Awarded to maintainers of the Rumoca project who have commit access and responsibility for project maintenance.</div>
+
+                <div class="action-buttons">
+                    <a href="https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=Rumoca+Maintainer&organizationName=CogniPilot+Foundation&issueYear=2024&issueMonth=01&expirationYear=2024&expirationMonth=12&certUrl=https%3A%2F%2Fcredentials.cognipilot.org%2Fprofile%2Fexamples%2Fmaintainer-rumoca&certId=maintainer-rumoca" target="_blank" class="btn btn-linkedin">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                        </svg>
+                        Add to LinkedIn
+                    </a>
+                    <a href="/verify#examples/maintainer-rumoca" class="btn btn-secondary">
+                        Verify
+                    </a>
+                </div>
+                <div class="linkedin-help">
+                    <a href="/linkedin-guide.html">Need help adding to LinkedIn?</a>
+                </div>
+
+                <div class="credential-meta">
+                    <div class="meta-row">
+                        <span class="meta-label">Type</span>
+                        <span class="meta-value">Role</span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">Issued</span>
+                        <span class="meta-value">2024-01-01</span>
+                    </div>
+                    <div class="meta-row"><span class="meta-label">Expires</span><span class="meta-value">2024-12-31</span></div>
+                </div>
+
+                <div class="download-section">
+                    <h3>Download Credential</h3>
+                    <div class="download-buttons">
+                        <a href="credential.json" download class="btn btn-download">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                            JSON
+                        </a>
+                        <a href="badge.png" download class="btn btn-download">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            PNG
+                        </a>
+                        <a href="badge.svg" download class="btn btn-download">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                            SVG
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="/images/cognipilot-logo.png" alt="CogniPilot" class="footer-logo">
+                    <span>CogniPilot Credentials</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://cognipilot.org">CogniPilot.org</a>
+                    <a href="https://github.com/cognipilot">GitHub</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024-2025 CogniPilot Foundation. Credentials issued as OpenBadges 3.0.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Embedded credential data for verification
+        const credential = {"@context": ["https://www.w3.org/ns/credentials/v2", "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json"], "id": "https://credentials.cognipilot.org/profile/examples/maintainer-rumoca", "type": ["VerifiableCredential", "OpenBadgeCredential"], "issuer": {"type": "Profile", "id": "did:web:credentials.cognipilot.org", "name": "CogniPilot Foundation", "url": "https://cognipilot.org"}, "validFrom": "2024-01-01T00:00:00Z", "credentialSubject": {"id": "mailto:examples@cognipilot.org", "type": ["AchievementSubject"], "name": "Example User", "achievement": {"id": "https://credentials.cognipilot.org/achievements/maintainer-rumoca", "type": "Achievement", "achievementType": "ext:Role", "name": "Rumoca Maintainer", "description": "Awarded to maintainers of the Rumoca project who have commit access and responsibility for project maintenance.", "image": {"id": "https://credentials.cognipilot.org/images/badges/MaintainerRumoca.svg", "type": "Image"}, "criteria": {"narrative": "This badge is awarded to individuals who have been granted maintainer status on the Rumoca project. Maintainers have commit access, review pull requests, and are responsible for the overall health and direction of the codebase."}}}, "validUntil": "2024-12-31T23:59:59Z", "proof": {"type": "DataIntegrityProof", "cryptosuite": "eddsa-rdfc-2022", "verificationMethod": "did:web:credentials.cognipilot.org#key-1", "created": "2025-12-23T06:27:49Z", "proofPurpose": "assertionMethod", "proofValue": "z5i5jUjNwGvTFHpmEdMgBjrGVNmMy5NigBUHdm7ZDjCfDBCxwqSbunCvjj1ZrSYErhCkjyZXy4UtkdRpPiW1MLc6A"}};
+    </script>
+</body>
+</html>
