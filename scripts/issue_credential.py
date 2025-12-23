@@ -223,12 +223,12 @@ def main():
                     # Try PNG filename as-is (might be .svg already)
                     svg_path = args.images_dir / image_filename
             else:
-                # Default to community-participant-badge.svg
-                svg_path = args.images_dir / 'community-participant-badge.svg'
+                # No image URL in achievement, skip baking
+                svg_path = None
         else:
             svg_path = args.bake
 
-        if not svg_path.exists():
+        if not svg_path or not svg_path.exists():
             print(f"Warning: SVG badge not found at {svg_path}, skipping bake")
         else:
             # Read SVG
