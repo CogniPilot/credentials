@@ -858,6 +858,103 @@ def process_rename_wallet(request: dict, registry: dict) -> dict:
     }
 
 
+def process_remove_request(request: dict, registry: dict, dry_run: bool = False) -> dict:
+    """Process a credential or profile removal request."""
+    email = request.get('recipient_email')
+    remove_profile = request.get('remove_profile', False)
+    achievements_to_remove = request.get('achievements', [])
+
+    if not email:
+        print("Error: remove request requires recipient_email")
+        return None
+
+    normalized_email = normalize_email(email)
+    wallet_slug = get_wallet_slug_for_email(normalized_email, registry)
+
+    if not wallet_slug:
+        print(f"Error: No wallet found for email {email}")
+        return None
+
+    profile_dir = PROFILES_DIR / wallet_slug
+    if not profile_dir.exists():
+        print(f"Error: Profile directory not found: {profile_dir}")
+        return None
+
+    removed_credentials = []
+    removed_profile = False
+
+    if remove_profile:
+        # Remove entire profile
+        if dry_run:
+            print(f"Would remove entire profile: {wallet_slug}")
+            creds = [d.name for d in profile_dir.iterdir() if d.is_dir() and d.name != 'wallet']
+            return {'wallet_slug': wallet_slug, 'removed_credentials': creds, 'removed_profile': True}
+
+        # Get list of credentials before removal
+        removed_credentials = [d.name for d in profile_dir.iterdir() if d.is_dir() and d.name != 'wallet']
+
+        # Remove profile directory
+        print(f"Removing entire profile: {wallet_slug}")
+        shutil.rmtree(profile_dir)
+
+        # Remove from registry
+        if wallet_slug in registry["wallets"]:
+            wallet_info = registry["wallets"][wallet_slug]
+            # Remove all associated emails from index
+            for email_addr in wallet_info.get("emails", []):
+                normalized = normalize_email(email_addr)
+                if normalized in registry["email_index"]:
+                    del registry["email_index"][normalized]
+            del registry["wallets"][wallet_slug]
+            save_wallet_registry(registry)
+
+        removed_profile = True
+        print(f"Removed profile and {len(removed_credentials)} credential(s)")
+
+    else:
+        # Remove specific credentials
+        if not achievements_to_remove:
+            print("Error: No achievements specified for removal")
+            return None
+
+        for achievement_id in achievements_to_remove:
+            cred_dir = profile_dir / achievement_id
+            if cred_dir.exists():
+                if dry_run:
+                    print(f"Would remove credential: {wallet_slug}/{achievement_id}")
+                else:
+                    print(f"Removing credential: {wallet_slug}/{achievement_id}")
+                    shutil.rmtree(cred_dir)
+                removed_credentials.append(achievement_id)
+            else:
+                print(f"Warning: Credential not found: {wallet_slug}/{achievement_id}")
+
+        # Check if wallet is now empty
+        if not dry_run:
+            remaining_creds = [d for d in profile_dir.iterdir() if d.is_dir() and d.name != 'wallet']
+            if not remaining_creds:
+                print(f"Wallet is now empty, removing profile: {wallet_slug}")
+                shutil.rmtree(profile_dir)
+
+                # Remove from registry
+                if wallet_slug in registry["wallets"]:
+                    wallet_info = registry["wallets"][wallet_slug]
+                    for email_addr in wallet_info.get("emails", []):
+                        normalized = normalize_email(email_addr)
+                        if normalized in registry["email_index"]:
+                            del registry["email_index"][normalized]
+                    del registry["wallets"][wallet_slug]
+                    save_wallet_registry(registry)
+
+                removed_profile = True
+
+    return {
+        'wallet_slug': wallet_slug,
+        'removed_credentials': removed_credentials,
+        'removed_profile': removed_profile
+    }
+
+
 def process_request(request_file: Path, key_path: Path, dry_run: bool = False) -> dict:
     """Process a single credential request file."""
 
@@ -885,6 +982,27 @@ def process_request(request_file: Path, key_path: Path, dry_run: bool = False) -
                 json.dump(request, f, indent=2)
 
             return {'wallet_slug': result['new_slug'], 'request': request}
+        return None
+
+    # Handle removal requests
+    if request_type == 'remove':
+        if request.get('status') == 'removed':
+            print(f"Skipping already removed: {request_file.name}")
+            return None
+
+        result = process_remove_request(request, registry, dry_run)
+        if result:
+            if not dry_run:
+                request['status'] = 'removed'
+                request['processed_at'] = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+                request['wallet_slug'] = result['wallet_slug']
+                request['removed_credentials'] = result['removed_credentials']
+                request['removed_profile'] = result['removed_profile']
+
+                with open(request_file, 'w') as f:
+                    json.dump(request, f, indent=2)
+
+            return {'wallet_slug': result['wallet_slug'], 'request': request, 'removed': True}
         return None
 
     # Check if already processed (only for issue requests)

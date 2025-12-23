@@ -1,0 +1,9 @@
+{
+  "_comment": "Template for REMOVE requests. Use to remove specific credentials or entire profile.",
+  "_note": "Set remove_profile to true to remove entire wallet, or list specific achievements to remove.",
+
+  "request_type": "remove",
+  "recipient_email": "email@example.com",
+  "remove_profile": false,
+  "achievements": ["achievement-id-1", "achievement-id-2"]
+}
