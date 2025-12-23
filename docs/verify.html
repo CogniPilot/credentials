@@ -364,6 +364,7 @@
                         <li>Valid Data Integrity proof</li>
                         <li>Signature matches issuer's public key</li>
                         <li>Credential hasn't been tampered with</li>
+                        <li>Credential revocation status</li>
                         <li>Credential expiration status</li>
                     </ul>
                 </div>
@@ -403,10 +404,140 @@
 
     <!-- jsonld library for RDFC-1.0 canonicalization -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsonld/8.3.2/jsonld.min.js"></script>
+    <!-- pako library for gzip decompression (used for status list) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 
     <script>
         // CogniPilot public key (Ed25519, multibase encoded)
         const PUBLIC_KEY_MULTIBASE = 'z6Mkp7ErHCMw7ofrmXRnc17RuppRRJnAdAkdACwFUmxmeRVS';
+
+        // Status list URL for revocation checking
+        const STATUS_LIST_URL = 'https://credentials.cognipilot.org/status/revocation-list';
+
+        // Cache for status list to avoid repeated fetches
+        let statusListCache = null;
+        let statusListCacheTime = 0;
+        const STATUS_LIST_CACHE_TTL = 60000; // 1 minute cache
+
+        // Base64url decode (RFC 4648 section 5)
+        function base64urlDecode(str) {
+            // Add padding if needed
+            let padded = str;
+            const padding = 4 - (str.length % 4);
+            if (padding !== 4) {
+                padded += '='.repeat(padding);
+            }
+            // Convert base64url to base64
+            const base64 = padded.replace(/-/g, '+').replace(/_/g, '/');
+            // Decode to binary string
+            const binaryString = atob(base64);
+            // Convert to Uint8Array
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes;
+        }
+
+        // Decode a status list bitstring (base64url + gzip compressed)
+        function decodeStatusListBitstring(encodedList) {
+            const compressed = base64urlDecode(encodedList);
+            // Use pako to decompress gzip
+            const decompressed = pako.inflate(compressed);
+            return decompressed;
+        }
+
+        // Check if a bit is set at the given index in the bitstring
+        function isBitSet(bitstring, index) {
+            const byteIndex = Math.floor(index / 8);
+            const bitOffset = index % 8;
+
+            if (byteIndex >= bitstring.length) {
+                throw new Error(`Index ${index} out of range for bitstring of ${bitstring.length * 8} bits`);
+            }
+
+            // Bit ordering: MSB first within each byte
+            return (bitstring[byteIndex] & (1 << (7 - bitOffset))) !== 0;
+        }
+
+        // Fetch and cache the status list credential
+        async function fetchStatusList() {
+            const now = Date.now();
+            if (statusListCache && (now - statusListCacheTime) < STATUS_LIST_CACHE_TTL) {
+                return statusListCache;
+            }
+
+            try {
+                const response = await fetch(STATUS_LIST_URL);
+                if (!response.ok) {
+                    console.warn('Failed to fetch status list:', response.status);
+                    return null;
+                }
+                statusListCache = await response.json();
+                statusListCacheTime = now;
+                return statusListCache;
+            } catch (e) {
+                console.warn('Error fetching status list:', e);
+                return null;
+            }
+        }
+
+        // Check revocation status of a credential
+        async function checkRevocationStatus(credential) {
+            const result = {
+                checked: false,
+                revoked: false,
+                error: null
+            };
+
+            // Check if credential has status
+            const status = credential.credentialStatus;
+            if (!status) {
+                // No status means no revocation checking - credential is valid
+                return result;
+            }
+
+            // Validate status entry format
+            if (status.type !== 'BitstringStatusListEntry') {
+                result.error = `Unsupported status type: ${status.type}`;
+                return result;
+            }
+
+            if (status.statusPurpose !== 'revocation') {
+                // Not a revocation status, skip
+                return result;
+            }
+
+            const index = parseInt(status.statusListIndex, 10);
+            if (isNaN(index) || index < 0) {
+                result.error = 'Invalid statusListIndex';
+                return result;
+            }
+
+            result.checked = true;
+
+            // Fetch the status list
+            const statusList = await fetchStatusList();
+            if (!statusList) {
+                result.error = 'Could not fetch status list to verify revocation';
+                return result;
+            }
+
+            try {
+                const encodedList = statusList.credentialSubject?.encodedList;
+                if (!encodedList) {
+                    result.error = 'Status list has no encodedList';
+                    return result;
+                }
+
+                const bitstring = decodeStatusListBitstring(encodedList);
+                result.revoked = isBitSet(bitstring, index);
+            } catch (e) {
+                result.error = `Failed to check status list: ${e.message}`;
+            }
+
+            return result;
+        }
 
         // Base58 alphabet
         const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
@@ -624,7 +755,19 @@
                 return result;
             }
 
-            result.verified = true;
+            // Check revocation status
+            const revocationStatus = await checkRevocationStatus(credential);
+            result.revocationChecked = revocationStatus.checked;
+            result.revoked = revocationStatus.revoked;
+            result.revocationError = revocationStatus.error;
+
+            if (revocationStatus.revoked) {
+                result.errors.push('This credential has been revoked');
+                // Don't return - continue to extract info for display
+            }
+
+            // Only mark as verified if not revoked
+            result.verified = !revocationStatus.revoked;
 
             // Extract info
             const issuer = credential.issuer;
@@ -781,6 +924,54 @@
 
         function showResult(result) {
             const resultDiv = document.getElementById('result');
+
+            // Check if this is a revoked credential (signature valid but revoked)
+            if (result.revoked && result.achievement) {
+                const badgeImageHtml = result.achievementImage
+                    ? `<div style="text-align: center; margin-bottom: 24px; position: relative;">
+                         <img src="${result.achievementImage}" alt="${result.achievement}" style="max-width: 180px; height: auto; border-radius: 8px; opacity: 0.5; filter: grayscale(100%);">
+                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); background: var(--color-danger); color: white; padding: 8px 24px; font-weight: bold; font-size: 1.25rem; border-radius: 4px; text-transform: uppercase;">Revoked</div>
+                       </div>`
+                    : '';
+
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <div class="result-header">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            <h3>Credential Revoked</h3>
+                        </div>
+                        <p style="margin-bottom: 24px; color: var(--color-text-secondary);">
+                            This credential has been revoked by the issuer and is no longer valid.
+                        </p>
+                        ${badgeImageHtml}
+                        <div class="details">
+                            <div class="detail-row">
+                                <span class="detail-label">Achievement</span>
+                                <span class="detail-value">${result.achievement}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Recipient</span>
+                                <span class="detail-value">${result.subject}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Issuer</span>
+                                <span class="detail-value">${result.issuer}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Status</span>
+                                <span class="detail-value"><span class="expiration-badge expired"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg> Revoked</span></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Credential ID</span>
+                                <span class="detail-value credential-id">${result.credential_id}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
 
             if (result.verified) {
                 const expStatus = getExpirationStatus(result.validUntil);
