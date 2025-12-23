@@ -503,11 +503,13 @@ def bake_svg(svg_content: str, credential: dict) -> str:
             count=1
         )
 
-    # Create the credential element with raw JSON content
-    # The validator expects raw JSON inside the element, not base64
+    # Create the credential element with JSON in CDATA section
+    # CDATA ensures proper XML parsing and matches OB 3.0 validator expectations
     credential_element = f'''
   <openbadges:credential>
-{credential_json}
+    <![CDATA[
+    {credential_json}
+  ]]>
   </openbadges:credential>
 '''
 
@@ -535,7 +537,7 @@ def extract_credential(svg_content: str) -> dict | None:
     Extract a baked credential from an SVG image.
 
     Returns the credential as a dict, or None if no credential is found.
-    Supports both raw JSON format (OB 3.0) and legacy base64 format.
+    Supports CDATA-wrapped JSON (OB 3.0), raw JSON, and legacy base64 format.
     """
     match = re.search(
         r'<openbadges:credential[^>]*>\s*(.*?)\s*</openbadges:credential>',
@@ -547,7 +549,12 @@ def extract_credential(svg_content: str) -> dict | None:
 
     content = match.group(1).strip()
 
-    # Try parsing as raw JSON first (OB 3.0 format)
+    # Strip CDATA wrapper if present
+    cdata_match = re.match(r'<!\[CDATA\[\s*(.*?)\s*\]\]>', content, re.DOTALL)
+    if cdata_match:
+        content = cdata_match.group(1).strip()
+
+    # Try parsing as raw JSON (OB 3.0 format)
     if content.startswith('{'):
         return json.loads(content)
 
