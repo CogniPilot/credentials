@@ -655,7 +655,13 @@
             if (!match) {
                 throw new Error('No embedded credential found in SVG');
             }
-            const content = match[1].trim();
+            let content = match[1].trim();
+
+            // Strip CDATA wrapper if present (OB 3.0 format)
+            const cdataMatch = content.match(/^<!\[CDATA\[\s*([\s\S]*?)\s*\]\]>$/);
+            if (cdataMatch) {
+                content = cdataMatch[1].trim();
+            }
 
             // Check if it's raw JSON (OB 3.0 format) or base64 (legacy)
             if (content.startsWith('{')) {
