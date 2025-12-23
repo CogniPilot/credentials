@@ -32,6 +32,36 @@ OpenBadges 3.0 digital credentials for the CogniPilot community.
 
 2. Run `python scripts/process_requests.py` or commit and push to trigger the GitHub Actions workflow
 
+### Wallet Slug Options
+
+By default, your wallet URL is derived from your name (e.g., `jane-doe`). You can customize this:
+
+**Custom slug** - Specify your own URL-friendly identifier:
+```json
+{
+  "recipient_name": "Jane Doe",
+  "recipient_email": "jane@example.com",
+  "achievement": "tsc-member-2026",
+  "valid_from": "2026-01-01T00:00:00Z",
+  "wallet_slug": "jdoe-credentials"
+}
+```
+
+**Anonymous slug** - Generate a random alphanumeric identifier for privacy:
+```json
+{
+  "recipient_name": "Jane Doe",
+  "recipient_email": "jane@example.com",
+  "achievement": "tsc-member-2026",
+  "valid_from": "2026-01-01T00:00:00Z",
+  "anonymize_slug": true
+}
+```
+
+This creates a wallet URL like `profile/a7b2c9d4e1f8/wallet` instead of `profile/jane-doe/wallet`.
+
+**Note:** Wallet slug options only apply when creating a new wallet. If your email already has an associated wallet, new credentials are added to that existing wallet. To change an existing wallet's slug, see [Renaming Wallet Slug](#renaming-wallet-slug).
+
 Generated files are saved to `docs/profile/<wallet-slug>/<achievement-id>/`:
 - `credential.json` - Signed verifiable credential
 - `badge.svg` - Baked SVG badge with earner name and embedded credential
@@ -74,6 +104,16 @@ To change your profile URL slug, create a rename request:
   "recipient_email": "email@example.com",
   "recipient_name": "Display Name",
   "new_wallet_slug": "new-slug-name"
+}
+```
+
+To convert an existing wallet to an anonymous slug:
+
+```json
+{
+  "request_type": "rename_wallet",
+  "recipient_email": "email@example.com",
+  "anonymize_slug": true
 }
 ```
 
