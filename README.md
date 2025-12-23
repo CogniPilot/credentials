@@ -141,6 +141,50 @@ Create a removal request file in `requests/`:
 
 Set `remove_profile` to `true` to remove your entire wallet and all credentials. Otherwise, list specific achievement IDs to remove.
 
+## Revoking Credentials
+
+Revocation marks a credential as invalid without deleting it. Revoked credentials will fail verification even if the recipient has already downloaded a copy. This is useful when:
+- A credential was issued in error
+- The recipient's status has changed
+- The credential was compromised
+
+### Via GitHub Issue (Recommended)
+
+1. [Create a revocation request issue](../../issues/new?template=revoke-credential.yml)
+2. Provide the credential holder's email and achievement ID
+3. Explain the reason for revocation
+4. A maintainer adds the `approve-revocation` label to process
+
+### Manual Method
+
+```bash
+cd scripts
+python revoke_credential.py --email user@example.com --achievement achievement-id
+```
+
+Or using the credential ID directly:
+
+```bash
+python revoke_credential.py --credential wallet-slug/achievement-id
+```
+
+To list all credentials and their revocation status:
+
+```bash
+python revoke_credential.py --list
+```
+
+### How Revocation Works
+
+Credentials include a `credentialStatus` field pointing to a [Bitstring Status List](https://www.w3.org/TR/vc-bitstring-status-list/). When a credential is revoked:
+
+1. The credential's bit is set in the status list
+2. The status list credential is regenerated and signed
+3. Verifiers check the status list during validation
+4. The credential fails verification with "Credential has been revoked"
+
+The status list is hosted at: `https://credentials.cognipilot.org/status/revocation-list`
+
 ## Verification
 
 Verify credentials at: https://credentials.cognipilot.org/verify
@@ -157,5 +201,6 @@ An [example wallet](https://credentials.cognipilot.org/profile/examples/wallet) 
 - **Expired** - [Rumoca Maintainer](https://credentials.cognipilot.org/profile/examples/maintainer-rumoca) (expired 2024-12-31)
 - **Expiring Soon** - [CogniPilot Collaborator](https://credentials.cognipilot.org/profile/examples/collaborator-cognipilot) (expires within 30 days)
 - **Valid** - [CogniPilot Contributor](https://credentials.cognipilot.org/profile/examples/contributor-cognipilot) (no expiration)
+- **Revoked** - [CogniPilot Maintainer](https://credentials.cognipilot.org/profile/examples/maintainer-cognipilot) (revoked credential)
 
 Use these to test verification behavior for different credential states.

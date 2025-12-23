@@ -35,6 +35,7 @@ from pathlib import Path
 from sign_credential import load_private_key, sign_credential
 from bake_badge import bake_svg, add_earner_name, svg_to_png
 from generate_share import generate_linkedin_url
+from status_list import create_credential_status, update_status_list
 
 
 # Directory paths (relative to repository root)
@@ -232,7 +233,8 @@ def create_credential(
     wallet_slug: str,
     achievement_id: str,
     valid_from: str = None,
-    valid_until: str = None
+    valid_until: str = None,
+    include_status: bool = True
 ) -> dict:
     """Create an unsigned credential from an achievement and recipient info."""
 
@@ -276,6 +278,10 @@ def create_credential(
 
     if valid_until:
         credential['validUntil'] = valid_until
+
+    # Add credential status for revocation checking
+    if include_status:
+        credential['credentialStatus'] = create_credential_status(wallet_slug, achievement_id)
 
     return credential
 
@@ -1414,6 +1420,13 @@ def main():
         print("Updating wallet pages...")
         print('=' * 60)
         update_wallet_pages(results)
+
+        # Update status list with any new credentials
+        print(f"\n{'=' * 60}")
+        print("Updating status list...")
+        print('=' * 60)
+        status_path = update_status_list(args.key)
+        print(f"Status list saved to: {status_path}")
 
     print(f"\n{'=' * 60}")
     print(f"Processed {len(results)} credential(s)")

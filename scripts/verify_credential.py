@@ -2,7 +2,8 @@
 """
 Verify an OpenBadges 3.0 credential signed with Data Integrity proof.
 
-Supports the eddsa-jcs-2022 cryptosuite.
+Supports both eddsa-rdfc-2022 and eddsa-jcs-2022 cryptosuites,
+and Bitstring Status List revocation.
 """
 
 import argparse
@@ -14,6 +15,18 @@ from pathlib import Path
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 import base58
+
+try:
+    from pyld import jsonld
+    import requests
+    HAS_PYLD = True
+
+    # Configure PyLD to use the requests document loader
+    jsonld.set_document_loader(jsonld.requests_document_loader())
+except ImportError:
+    HAS_PYLD = False
+
+from status_list import verify_status
 
 
 # Multicodec prefixes
@@ -55,9 +68,31 @@ def jcs_canonicalize(obj) -> bytes:
     ).encode('utf-8')
 
 
+def rdfc_canonicalize(obj) -> bytes:
+    """
+    Canonicalize JSON-LD object using RDF Dataset Canonicalization (RDFC-1.0).
+
+    This uses PyLD to convert JSON-LD to normalized N-Quads format.
+    """
+    if not HAS_PYLD:
+        raise RuntimeError(
+            "PyLD is required for eddsa-rdfc-2022 cryptosuite. "
+            "Install it with: pip install pyld"
+        )
+
+    # Normalize to N-Quads using URDNA2015 algorithm (RDFC-1.0 compatible)
+    normalized = jsonld.normalize(
+        obj,
+        {'algorithm': 'URDNA2015', 'format': 'application/n-quads'}
+    )
+    return normalized.encode('utf-8')
+
+
 def verify_credential(credential: dict, verify_key: VerifyKey) -> dict:
     """
-    Verify a credential signed with eddsa-jcs-2022 cryptosuite.
+    Verify a credential signed with Data Integrity proof.
+
+    Supports both eddsa-rdfc-2022 and eddsa-jcs-2022 cryptosuites.
 
     Returns dict with verification result and details.
     """
@@ -89,8 +124,9 @@ def verify_credential(credential: dict, verify_key: VerifyKey) -> dict:
         result['errors'].append(f"Unsupported proof type: {proof.get('type')}")
         return result
 
-    if proof.get('cryptosuite') != 'eddsa-jcs-2022':
-        result['errors'].append(f"Unsupported cryptosuite: {proof.get('cryptosuite')}")
+    cryptosuite = proof.get('cryptosuite')
+    if cryptosuite not in ('eddsa-jcs-2022', 'eddsa-rdfc-2022'):
+        result['errors'].append(f"Unsupported cryptosuite: {cryptosuite}")
         return result
 
     # Extract proof value
@@ -105,21 +141,41 @@ def verify_credential(credential: dict, verify_key: VerifyKey) -> dict:
         result['errors'].append(f"Failed to decode proofValue: {e}")
         return result
 
-    # Recreate proof config (without proofValue and @context)
-    proof_config = {
-        'type': proof['type'],
-        'cryptosuite': proof['cryptosuite'],
-        'verificationMethod': proof['verificationMethod'],
-        'created': proof['created'],
-        'proofPurpose': proof['proofPurpose']
-    }
-
     # Get credential without proof
     credential_copy = {k: v for k, v in credential.items() if k != 'proof'}
 
-    # Canonicalize and hash
-    canonical_proof = jcs_canonicalize(proof_config)
-    canonical_credential = jcs_canonicalize(credential_copy)
+    # Canonicalize and hash based on cryptosuite
+    if cryptosuite == 'eddsa-rdfc-2022':
+        # RDFC-1.0 canonicalization for eddsa-rdfc-2022
+        # Proof options include @context for RDFC
+        proof_options = {
+            '@context': credential['@context'],
+            'type': proof['type'],
+            'cryptosuite': proof['cryptosuite'],
+            'verificationMethod': proof['verificationMethod'],
+            'created': proof['created'],
+            'proofPurpose': proof['proofPurpose']
+        }
+
+        try:
+            canonical_proof = rdfc_canonicalize(proof_options)
+            canonical_credential = rdfc_canonicalize(credential_copy)
+        except Exception as e:
+            result['errors'].append(f"Canonicalization failed: {e}")
+            return result
+    else:
+        # JCS canonicalization for eddsa-jcs-2022
+        # Proof config excludes @context for JCS
+        proof_config = {
+            'type': proof['type'],
+            'cryptosuite': proof['cryptosuite'],
+            'verificationMethod': proof['verificationMethod'],
+            'created': proof['created'],
+            'proofPurpose': proof['proofPurpose']
+        }
+
+        canonical_proof = jcs_canonicalize(proof_config)
+        canonical_credential = jcs_canonicalize(credential_copy)
 
     proof_hash = hashlib.sha256(canonical_proof).digest()
     credential_hash = hashlib.sha256(canonical_credential).digest()
@@ -132,6 +188,20 @@ def verify_credential(credential: dict, verify_key: VerifyKey) -> dict:
     except BadSignatureError:
         result['errors'].append("Signature verification failed")
         return result
+
+    # Check revocation status
+    status_result = verify_status(credential)
+    result['revocation_status'] = status_result
+
+    if status_result.get('revoked'):
+        result['verified'] = False
+        result['errors'].append("Credential has been revoked")
+        if status_result.get('revoked_at'):
+            result['errors'].append(f"Revoked at: {status_result['revoked_at']}")
+        return result
+
+    if status_result.get('error'):
+        result['warnings'].append(f"Could not verify revocation status: {status_result['error']}")
 
     # Extract additional info
     issuer = credential.get('issuer')
@@ -191,6 +261,11 @@ def main():
             print(f"  Subject: {result['subject']}")
             print(f"  Achievement: {result.get('achievement', 'N/A')}")
             print(f"  Signed: {result['proof']['created']}")
+            revocation = result.get('revocation_status', {})
+            if revocation.get('valid'):
+                print("  Status: Active (not revoked)")
+            for warning in result.get('warnings', []):
+                print(f"  Warning: {warning}")
         else:
             print("✗ Credential verification failed!")
             for error in result['errors']:

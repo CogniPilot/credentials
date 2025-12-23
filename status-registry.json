@@ -1,0 +1,77 @@
+{
+  "next_index": 12,
+  "credentials": {
+    "benjamin-perseghetti/board-of-directors-2026": {
+      "index": 0,
+      "revoked": false,
+      "revoked_at": null,
+      "issued_at": "2025-12-23T07:43:00Z"
+    },
+    "benjamin-perseghetti/maintainer-cognipilot": {
+      "index": 1,
+      "revoked": false,
+      "revoked_at": null,
+      "issued_at": "2025-12-23T07:43:02Z"
+    },
+    "benjamin-perseghetti/tsc-member-2026": {
+      "index": 2,
+      "revoked": false,
+      "revoked_at": null,
+      "issued_at": "2025-12-23T07:43:03Z"
+    },
+    "benjamin-perseghetti-1/maintainer-rumoca": {
+      "index": 3,
+      "revoked": false,
+      "revoked_at": null,
+      "issued_at": "2025-12-23T07:43:04Z"
+    },
+    "cogni/contributor-cognipilot": {
+      "index": 4,
+      "revoked": false,
+      "revoked_at": null,
+      "issued_at": "2025-12-23T07:43:05Z"
+    },
+    "examples/collaborator-cognipilot": {
+      "index": 5,
+      "revoked": false,
+      "revoked_at": null,
+      "issued_at": "2025-12-23T07:43:05Z"
+    },
+    "examples/contributor-cognipilot": {
+      "index": 6,
+      "revoked": false,
+      "revoked_at": null,
+      "issued_at": "2025-12-23T07:43:06Z"
+    },
+    "examples/maintainer-rumoca": {
+      "index": 7,
+      "revoked": false,
+      "revoked_at": null,
+      "issued_at": "2025-12-23T07:43:07Z"
+    },
+    "james-goppert/board-of-directors-2026": {
+      "index": 8,
+      "revoked": false,
+      "revoked_at": null,
+      "issued_at": "2025-12-23T07:43:07Z"
+    },
+    "peter-van-der-perk/maintainer-cognipilot": {
+      "index": 9,
+      "revoked": false,
+      "revoked_at": null,
+      "issued_at": "2025-12-23T07:43:08Z"
+    },
+    "thomas-meschede/maintainer-rumoca": {
+      "index": 10,
+      "revoked": false,
+      "revoked_at": null,
+      "issued_at": "2025-12-23T07:43:09Z"
+    },
+    "examples/maintainer-cognipilot": {
+      "index": 11,
+      "revoked": true,
+      "revoked_at": "2025-12-23T07:52:54Z",
+      "issued_at": "2025-12-23T07:52:39Z"
+    }
+  }
+}
