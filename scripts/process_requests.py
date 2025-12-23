@@ -806,10 +806,15 @@ def process_rename_wallet(request: dict, registry: dict) -> dict:
     """Process a wallet rename request."""
     email = request.get('recipient_email')
     new_slug = request.get('new_wallet_slug')
+    anonymize_slug = request.get('anonymize_slug', False)
     new_display_name = request.get('recipient_name')
 
-    if not email or not new_slug:
-        print("Error: rename_wallet requires recipient_email and new_wallet_slug")
+    if not email:
+        print("Error: rename_wallet requires recipient_email")
+        return None
+
+    if not new_slug and not anonymize_slug:
+        print("Error: rename_wallet requires new_wallet_slug or anonymize_slug")
         return None
 
     normalized_email = normalize_email(email)
@@ -819,7 +824,15 @@ def process_rename_wallet(request: dict, registry: dict) -> dict:
         print(f"Error: No wallet found for email {email}")
         return None
 
-    new_slug = name_to_slug(new_slug)
+    # Generate anonymous slug or use provided slug
+    if anonymize_slug:
+        new_slug = generate_anonymous_slug()
+        # Ensure unique slug
+        while new_slug in registry["wallets"]:
+            new_slug = generate_anonymous_slug()
+        print(f"Generated anonymous slug: {new_slug}")
+    else:
+        new_slug = name_to_slug(new_slug)
 
     if old_slug == new_slug:
         print(f"Wallet slug is already '{new_slug}'")
