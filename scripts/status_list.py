@@ -61,21 +61,28 @@ def create_empty_bitstring(size_bytes: int = STATUS_LIST_SIZE) -> bytes:
 
 def encode_bitstring(bitstring: bytes) -> str:
     """
-    Encode a bitstring to base64url-encoded gzip-compressed format.
+    Encode a bitstring to multibase base64url-encoded gzip-compressed format.
 
-    Per the spec, the bitstring is gzip-compressed then base64url encoded.
+    Per the W3C Bitstring Status List spec, the bitstring is gzip-compressed,
+    then base64url encoded, then prefixed with 'u' (multibase prefix for base64url).
     """
     compressed = gzip.compress(bitstring)
     # base64url encoding (RFC 4648 section 5)
     encoded = base64.urlsafe_b64encode(compressed).decode('ascii')
-    # Remove padding
-    return encoded.rstrip('=')
+    # Remove padding and add multibase prefix 'u' for base64url
+    return 'u' + encoded.rstrip('=')
 
 
 def decode_bitstring(encoded: str) -> bytes:
     """
-    Decode a base64url-encoded gzip-compressed bitstring.
+    Decode a multibase base64url-encoded gzip-compressed bitstring.
+
+    Handles the multibase 'u' prefix for base64url encoding.
     """
+    # Strip multibase prefix if present
+    if encoded.startswith('u'):
+        encoded = encoded[1:]
+
     # Add padding if needed
     padding = 4 - (len(encoded) % 4)
     if padding != 4:

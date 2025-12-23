@@ -9,19 +9,11 @@
     "BitstringStatusListCredential"
   ],
   "issuer": "did:web:credentials.cognipilot.org",
-  "validFrom": "2025-12-23T07:52:54Z",
+  "validFrom": "2025-12-23T09:39:36Z",
   "credentialSubject": {
     "id": "https://credentials.cognipilot.org/status/revocation-list#list",
     "type": "BitstringStatusList",
     "statusPurpose": "revocation",
-    "encodedList": "H4sIAFZKSmkC_-3BIQEAAAACICf4f60zLEAaAAAAAAAAAAAAAAAAAAAA4GxQz5NFAEAAAA"
-  },
-  "proof": {
-    "type": "DataIntegrityProof",
-    "cryptosuite": "eddsa-rdfc-2022",
-    "verificationMethod": "did:web:credentials.cognipilot.org#key-1",
-    "created": "2025-12-23T07:52:54Z",
-    "proofPurpose": "assertionMethod",
-    "proofValue": "z2XedovBARHr6wvrLfsPFqWnabSmMABRuxNPZXRZyRLDfHYdrgra8UiFPYDmmX1YyqfbhHJWEecXJZ4N8BPmndGRC"
+    "encodedList": "uH4sIAFhjSmkC_-3BIQEAAAACICf4f60zLEAaAAAAAAAAAAAAAAAAAAAA4GxQz5NFAEAAAA"
   }
 }

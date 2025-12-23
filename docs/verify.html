@@ -439,9 +439,14 @@
             return bytes;
         }
 
-        // Decode a status list bitstring (base64url + gzip compressed)
+        // Decode a status list bitstring (multibase base64url + gzip compressed)
         function decodeStatusListBitstring(encodedList) {
-            const compressed = base64urlDecode(encodedList);
+            // Strip multibase prefix 'u' for base64url if present
+            let data = encodedList;
+            if (data.startsWith('u')) {
+                data = data.slice(1);
+            }
+            const compressed = base64urlDecode(data);
             // Use pako to decompress gzip
             const decompressed = pako.inflate(compressed);
             return decompressed;
