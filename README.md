@@ -174,6 +174,24 @@ To list all credentials and their revocation status:
 python revoke_credential.py --list
 ```
 
+### Reinstating Revoked Credentials
+
+Revoked credentials can be reinstated if the revocation was done in error or the situation has changed.
+
+**Via GitHub Issue:**
+
+1. [Create a reinstatement request issue](../../issues/new?template=unrevoke-credential.yml)
+2. Provide the credential holder's email and achievement ID
+3. Explain the reason for reinstatement
+4. A maintainer adds the `approve-unrevocation` label to process
+
+**Manual Method:**
+
+```bash
+cd scripts
+python revoke_credential.py --email user@example.com --achievement achievement-id --unrevoke
+```
+
 ### How Revocation Works
 
 Credentials include a `credentialStatus` field pointing to a [Bitstring Status List](https://www.w3.org/TR/vc-bitstring-status-list/). When a credential is revoked:
@@ -182,6 +200,8 @@ Credentials include a `credentialStatus` field pointing to a [Bitstring Status L
 2. The status list credential is regenerated and signed
 3. Verifiers check the status list during validation
 4. The credential fails verification with "Credential has been revoked"
+
+When a credential is reinstated, the bit is cleared and the credential passes verification again.
 
 The status list is hosted at: `https://credentials.cognipilot.org/status/revocation-list`
 

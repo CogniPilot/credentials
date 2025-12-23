@@ -35,7 +35,12 @@ from pathlib import Path
 from sign_credential import load_private_key, sign_credential
 from bake_badge import bake_svg, add_earner_name, svg_to_png
 from generate_share import generate_linkedin_url
-from status_list import create_credential_status, update_status_list
+from status_list import (
+    create_credential_status,
+    update_status_list,
+    rename_wallet_in_registry,
+    rename_credential_in_registry
+)
 
 
 # Directory paths (relative to repository root)
@@ -878,6 +883,11 @@ def process_rename_wallet(request: dict, registry: dict) -> dict:
                     with open(cred_file, 'w') as f:
                         json.dump(cred, f, indent=2)
 
+    # Update status registry entries for all credentials in this wallet
+    renamed_count = rename_wallet_in_registry(old_slug, new_slug)
+    if renamed_count > 0:
+        print(f"Updated {renamed_count} credential(s) in status registry")
+
     save_wallet_registry(registry)
 
     print(f"Renamed wallet: {old_slug} -> {new_slug}")
@@ -1108,6 +1118,14 @@ def process_request(request_file: Path, key_path: Path, dry_run: bool = False) -
                 print(f"Error: Cannot find existing credential for {old_email} with {achievement_id}")
                 return None
             print(f"Found existing credential at: {old_credential_dir}")
+
+            # If moving between wallets, rename status registry entry BEFORE creating credential
+            # This ensures create_credential_status finds the existing entry and reuses its index
+            if old_wallet_slug != wallet_slug:
+                old_cred_id = f"{old_wallet_slug}/{achievement_id}"
+                new_cred_id = f"{wallet_slug}/{achievement_id}"
+                if rename_credential_in_registry(old_cred_id, new_cred_id):
+                    print(f"Updated status registry: {old_cred_id} -> {new_cred_id}")
 
     # Create credential
     credential = create_credential(

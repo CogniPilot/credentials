@@ -236,6 +236,77 @@ def unrevoke_credential(credential_id: str) -> bool:
     return True
 
 
+def rename_credential_in_registry(old_credential_id: str, new_credential_id: str) -> bool:
+    """
+    Rename a credential entry in the status registry.
+
+    This preserves the status index and revocation state when a wallet is renamed
+    or a credential is moved between wallets.
+
+    Args:
+        old_credential_id: The old identifier (e.g., "old-wallet/achievement-id")
+        new_credential_id: The new identifier (e.g., "new-wallet/achievement-id")
+
+    Returns True if successful, False if old credential not found or new already exists.
+    """
+    if old_credential_id == new_credential_id:
+        return True  # No change needed
+
+    registry = load_status_registry()
+
+    if old_credential_id not in registry["credentials"]:
+        return False
+
+    if new_credential_id in registry["credentials"]:
+        # New ID already exists - can't rename
+        return False
+
+    # Move the entry to the new key
+    registry["credentials"][new_credential_id] = registry["credentials"].pop(old_credential_id)
+
+    save_status_registry(registry)
+    return True
+
+
+def rename_wallet_in_registry(old_wallet_slug: str, new_wallet_slug: str) -> int:
+    """
+    Rename all credential entries for a wallet in the status registry.
+
+    Args:
+        old_wallet_slug: The old wallet slug
+        new_wallet_slug: The new wallet slug
+
+    Returns the number of entries renamed.
+    """
+    if old_wallet_slug == new_wallet_slug:
+        return 0
+
+    registry = load_status_registry()
+    renamed_count = 0
+
+    # Find all credentials with the old wallet slug
+    old_prefix = f"{old_wallet_slug}/"
+    new_prefix = f"{new_wallet_slug}/"
+
+    # Collect keys to rename (can't modify dict while iterating)
+    to_rename = []
+    for credential_id in registry["credentials"]:
+        if credential_id.startswith(old_prefix):
+            new_id = new_prefix + credential_id[len(old_prefix):]
+            to_rename.append((credential_id, new_id))
+
+    # Rename entries
+    for old_id, new_id in to_rename:
+        if new_id not in registry["credentials"]:
+            registry["credentials"][new_id] = registry["credentials"].pop(old_id)
+            renamed_count += 1
+
+    if renamed_count > 0:
+        save_status_registry(registry)
+
+    return renamed_count
+
+
 def create_credential_status(wallet_slug: str, achievement_id: str) -> dict:
     """
     Create a credentialStatus object for a new credential.
