@@ -63,14 +63,16 @@ body:
       label: Anonymous Wallet
       description: Generate a random alphanumeric wallet URL instead of using your name
       options:
-        - label: Use anonymous wallet slug (random alphanumeric identifier)
-          required: false
-
-  - type: textarea
-    id: justification
-    attributes:
-      label: Justification
-      description: Brief explanation of why this badge should be issued
-      placeholder: "Describe the recipient's contributions or role..."
+        # AUTO-GENERATED - Do not edit manually
+        # Updated by update-issue-template workflow
+        - "CogniPilot Collaborator (collaborator-cognipilot)"
+        - "CogniPilot Contributor (contributor-cognipilot)"
+        - "CogniPilot Maintainer (maintainer-cognipilot)"
+        - "Rumoca Maintainer (maintainer-rumoca)"
+        - "CogniPilot Board of Directors 2026 (board-of-directors-2026)"
+        - "CogniPilot Bronze Member 2026 (bronze-member-2026)"
+        - "CogniPilot Gold Member 2026 (gold-member-2026)"
+        - "CogniPilot Silver Member 2026 (silver-member-2026)"
+        - "CogniPilot TSC Member 2026 (tsc-member-2026)"
     validations:
       required: true
