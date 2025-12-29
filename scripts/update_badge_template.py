@@ -102,9 +102,10 @@ def update_template(options: list) -> bool:
     with open(TEMPLATE_PATH) as f:
         content = f.read()
 
-    # Find the options section and replace it
-    # Match from "options:" to the next field (validations:)
-    pattern = r'(      options:\n)(.*?)(    validations:)'
+    # Find the Badge Type dropdown options section and replace it
+    # Only match the options under the dropdown with id: achievement
+    # This avoids matching other options sections (like checkboxes)
+    pattern = r'(  - type: dropdown\n    id: achievement\n    attributes:\n      label: Badge Type\n      description: Select the type of badge to issue\n      options:\n)(.*?)(    validations:)'
 
     options_block = '        # AUTO-GENERATED - Do not edit manually\n'
     options_block += '        # Updated by update-issue-template workflow\n'
@@ -114,7 +115,8 @@ def update_template(options: list) -> bool:
         pattern,
         r'\1' + options_block + r'\3',
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
+        count=1  # Only replace the first match
     )
 
     if new_content == content:
