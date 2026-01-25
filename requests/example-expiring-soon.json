@@ -3,10 +3,10 @@
   "recipient_email": "examples@cognipilot.org",
   "achievement": "collaborator-cognipilot",
   "valid_from": "2025-01-01T00:00:00Z",
-  "valid_until": "2026-02-14T23:59:59Z",
+  "valid_until": "2026-02-15T23:59:59Z",
   "wallet_slug": "examples",
   "status": "issued",
-  "processed_at": "2026-01-24T00:15:55Z",
+  "processed_at": "2026-01-25T00:17:52Z",
   "credential_url": "https://credentials.cognipilot.org/profile/examples/collaborator-cognipilot",
   "wallet_url": "https://credentials.cognipilot.org/profile/examples/wallet",
   "linkedin_url": "https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=CogniPilot+Collaborator&organizationName=CogniPilot+Foundation&issueYear=2025&issueMonth=01&expirationYear=2026&expirationMonth=02&certUrl=https%3A%2F%2Fcredentials.cognipilot.org%2Fprofile%2Fexamples%2Fcollaborator-cognipilot&certId=collaborator-cognipilot"
