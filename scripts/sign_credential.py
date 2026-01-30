@@ -18,13 +18,47 @@ import base58
 
 try:
     from pyld import jsonld
-    import requests
     HAS_PYLD = True
-
-    # Configure PyLD to use the requests document loader
-    jsonld.set_document_loader(jsonld.requests_document_loader())
 except ImportError:
     HAS_PYLD = False
+
+# Local cache of JSON-LD contexts (URL -> local filename)
+# These are stored in the contexts/ directory relative to this script
+CONTEXT_CACHE = {
+    "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json": "ob-v3p0-context-3.0.3.json",
+    "https://www.w3.org/ns/credentials/v2": "credentials-v2.json",
+    "https://w3id.org/security/data-integrity/v2": "data-integrity-v2.json",
+}
+
+
+def _get_contexts_dir() -> Path:
+    """Get the path to the contexts directory."""
+    return Path(__file__).parent.parent / "contexts"
+
+
+def _cached_document_loader(url, options={}):
+    """
+    Document loader that uses local cached copies of JSON-LD contexts.
+
+    Falls back to network requests for URLs not in the cache.
+    """
+    if url in CONTEXT_CACHE:
+        context_path = _get_contexts_dir() / CONTEXT_CACHE[url]
+        if context_path.exists():
+            with open(context_path) as f:
+                document = json.load(f)
+            return {
+                "contentType": "application/ld+json",
+                "contextUrl": None,
+                "documentUrl": url,
+                "document": document,
+            }
+    # Fallback to network for uncached URLs
+    return jsonld.requests_document_loader()(url, options)
+
+
+if HAS_PYLD:
+    jsonld.set_document_loader(_cached_document_loader)
 
 
 # Multicodec prefixes
